@@ -1,7 +1,7 @@
 
 export const initialSiteContent = {
   global: {
-    siteName: "EDGE2 MTR",
+    siteName: "EDGE2 MTR Reports",
     contactPhone: "+919999999999",
     contactEmail: "edge2mtr@gmail.com",
     address: "EDGE2 MTR, Karnataka",
@@ -10,9 +10,9 @@ export const initialSiteContent = {
   },
   home: {
     heroTitle: "EDGE2 MTR",
-    heroSubtitle: "Wholesome Organic Goodness, Straight From Nature!",
+    heroSubtitle: "Wholesome Automated Reports, Straight From The System!",
     whyChooseTitle: "Why Choose EDGE2 MTR?",
-    whyChooseSubtitle: "We don't just sell our products; we provide wholesome organic goodness and ensure that you get the best quality products at the best price."
+    whyChooseSubtitle: "We don't just generate reports; we provide wholesome automated insights and ensure that you get the best quality data."
   },
   about: {
     title: "About EDGE2 MTR",
@@ -51,7 +51,7 @@ export const initialSiteContent = {
     about: [],
     location: [],
     contact: [],
-    blog: []
+
   }
 };
 

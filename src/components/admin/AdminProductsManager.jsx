@@ -158,7 +158,7 @@ const AdminProductsManager = () => {
         return (
             <div className="bg-white p-6 rounded-lg shadow-sm animate-in slide-in-from-right-4 duration-300">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                    <h2 className="text-xl font-bold">{isAddingNew ? 'Add New Product' : 'Edit Product'}</h2>
+                    <h2 className="text-xl font-bold">{isAddingNew ? 'Add New Report' : 'Edit Report'}</h2>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" onClick={() => setEditingProduct(null)} disabled={isSaving}>
                             Cancel
@@ -184,7 +184,7 @@ const AdminProductsManager = () => {
                     <TabsContent value="basic" className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label>Product Title</Label>
+                                <Label>Report Title</Label>
                                 <Input value={editingProduct.title} onChange={(e) => handleChange('title', e.target.value)} />
                             </div>
                             <div className="space-y-2">
@@ -232,7 +232,7 @@ const AdminProductsManager = () => {
                                     checked={editingProduct.featured}
                                     onCheckedChange={(checked) => handleChange('featured', checked)}
                                 />
-                                <label htmlFor="featured" className="ml-2 text-sm font-medium">Featured Product</label>
+                                <label htmlFor="featured" className="ml-2 text-sm font-medium">Featured Report</label>
                             </div>
                         </div>
 
@@ -275,8 +275,8 @@ const AdminProductsManager = () => {
                     <TabsContent value="images">
                         <div className="space-y-4">
                             <div className="p-4 border rounded bg-gray-50">
-                                <h3 className="font-semibold mb-2">Product Images</h3>
-                                <p className="text-sm text-gray-500 mb-4">Upload images for this product.</p>
+                                <h3 className="font-semibold mb-2">Report Images</h3>
+                                <p className="text-sm text-gray-500 mb-4">Upload images for this report.</p>
                                 <ImageUploader
                                     images={editingProduct.images}
                                     onImagesChange={(newImages) => handleChange('images', newImages)}
@@ -296,7 +296,7 @@ const AdminProductsManager = () => {
                 <div className="relative w-full sm:w-72">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
-                        placeholder="Search products..."
+                        placeholder="Search reports..."
                         className="pl-10"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -326,7 +326,7 @@ const AdminProductsManager = () => {
                 <table className="w-full">
                     <thead className="bg-gray-50 border-b">
                         <tr>
-                            <th className="text-left py-3 px-4 font-semibold text-sm text-gray-600">Product</th>
+                            <th className="text-left py-3 px-4 font-semibold text-sm text-gray-600">Report</th>
                             <th className="text-left py-3 px-4 font-semibold text-sm text-gray-600 hidden md:table-cell">Price</th>
                             <th className="text-left py-3 px-4 font-semibold text-sm text-gray-600">Status</th>
                             <th className="text-right py-3 px-4 font-semibold text-sm text-gray-600">Actions</th>
@@ -378,7 +378,7 @@ const AdminProductsManager = () => {
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center text-red-600">
                             <AlertCircle className="w-5 h-5 mr-2" />
-                            Delete Product?
+                            Delete Report?
                         </AlertDialogTitle>
                         <AlertDialogDescription>
                             Are you sure you want to delete <span className="font-semibold text-gray-900">{deleteConfirmation.productTitle}</span>?

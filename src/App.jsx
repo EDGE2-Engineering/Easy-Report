@@ -7,10 +7,8 @@ import { SiteSettingsProvider } from '@/contexts/SiteSettingsContext';
 import { CartProvider } from '@/contexts/CartContext';
 import HomePage from '@/pages/HomePage';
 import ProductDetailPage from '@/pages/ProductDetailPage';
-import AboutPage from '@/pages/AboutPage';
-import ContactPage from '@/pages/ContactPage';
-import BlogPage from '@/pages/BlogPage';
-import BlogDetailPage from '@/pages/BlogDetailPage';
+
+
 import AdminPage from '@/pages/AdminPage';
 import CartPage from '@/pages/CartPage';
 import FloatingButtons from '@/components/FloatingButtons';
@@ -32,10 +30,8 @@ function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/product/:id" element={<ProductDetailPage />} />
                   <Route path="/cart" element={<CartPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/blog" element={<BlogPage />} />
-                  <Route path="/blog/:id" element={<BlogDetailPage />} />
+
+
                   <Route path="/admin" element={<AdminPage />} />
                 </Routes>
                 <FloatingButtons />

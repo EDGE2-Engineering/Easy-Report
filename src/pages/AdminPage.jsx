@@ -8,7 +8,7 @@ import { Settings, LayoutDashboard, Home, FileText, LogOut, Save, Loader2, UserC
 import { Button } from '@/components/ui/button';
 import AdminContentManager from '@/components/admin/AdminContentManager';
 import AdminProductsManager from '@/components/admin/AdminProductsManager';
-import AdminBlogManager from '@/components/admin/AdminBlogManager';
+
 import AdminSettings from '@/components/admin/AdminSettings';
 import AdminLogin from '@/components/admin/AdminLogin';
 import { useToast } from '@/components/ui/use-toast';
@@ -131,8 +131,8 @@ const AdminPage = () => {
               className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 font-medium focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm outline-none appearance-none"
             >
               <option value="content">Site Settings</option>
-              <option value="products">Products</option>
-              <option value="blog">Blog Posts</option>
+              <option value="products">Reports</option>
+
               <option value="settings">Security</option>
             </select>
             <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
@@ -155,14 +155,9 @@ const AdminPage = () => {
                 value="products"
                 className="px-6 py-3 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white transition-all flex items-center gap-2"
               >
-                <Home className="w-4 h-4" /> Products
+                <Home className="w-4 h-4" /> Reports
               </TabsTrigger>
-              <TabsTrigger
-                value="blog"
-                className="px-6 py-3 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white transition-all flex items-center gap-2"
-              >
-                <FileText className="w-4 h-4" /> Blog Posts
-              </TabsTrigger>
+
               <TabsTrigger
                 value="settings"
                 className="px-6 py-3 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-white transition-all flex items-center gap-2"
@@ -180,9 +175,7 @@ const AdminPage = () => {
             <AdminProductsManager />
           </TabsContent>
 
-          <TabsContent value="blog" className="focus-visible:outline-none animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <AdminBlogManager />
-          </TabsContent>
+
 
           <TabsContent value="settings" className="focus-visible:outline-none animate-in fade-in slide-in-from-bottom-2 duration-500">
             <AdminSettings />

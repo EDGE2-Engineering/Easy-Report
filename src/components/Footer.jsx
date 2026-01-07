@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, MapPin, Phone, Mail, Navigation } from 'lucide-react';
+import { Building2, MapPin, Phone, Mail, Navigation, ClipboardCheck } from 'lucide-react';
 import { useSiteContent } from '@/lib/useSiteContent';
 import { Button } from '@/components/ui/button';
 
@@ -20,8 +20,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              {/* Leaf icon customized */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-leaf"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" /></svg>
+              <ClipboardCheck className="w-8 h-8" />
               <span className="text-xl font-bold">{content.global?.siteName || "EDGE2 MTR"}</span>
             </div>
             <p className="text-gray-400 mb-4 text-sm leading-relaxed">
@@ -35,15 +34,9 @@ const Footer = () => {
               <Link to="/" className="block text-gray-400 hover:text-white transition-colors">
                 Home
               </Link>
-              <Link to="/about" className="block text-gray-400 hover:text-white transition-colors">
-                About Us
-              </Link>
-              <Link to="/contact" className="block text-gray-400 hover:text-white transition-colors">
-                Contact
-              </Link>
-              <Link to="/blog" className="block text-gray-400 hover:text-white transition-colors">
-                Blog
-              </Link>
+
+
+
             </nav>
           </div>
 

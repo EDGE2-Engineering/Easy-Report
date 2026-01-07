@@ -28,9 +28,9 @@ const HomePage = () => {
   const ProductGridSection = () => (
     <div id="products" className="container mx-auto px-4 py-16">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Products</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Reports</h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Explore our range of pure, chemical-free products directly from nature.
+          Explore our range of automated test reports directly from our system.
         </p>
       </div>
 
@@ -56,7 +56,7 @@ const HomePage = () => {
         </div>
       ) : (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-          <h3 className="text-xl font-medium text-gray-900">No products found</h3>
+          <h3 className="text-xl font-medium text-gray-900">No reports found</h3>
           <p className="text-gray-500 mt-2">Try selecting a different category.</p>
         </div>
       )}

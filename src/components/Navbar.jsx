@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Home, Building2, Info, Phone, MapPin, BookOpen, Lock, ShoppingBag } from 'lucide-react';
+import { Menu, X, Home, Building2, Info, Phone, MapPin, BookOpen, Lock, ShoppingBag, ClipboardCheck } from 'lucide-react';
 import { useSiteContent } from '@/lib/useSiteContent';
 
 import { useCart } from '@/contexts/CartContext';
@@ -16,9 +16,9 @@ const Navbar = () => {
 
   const navItems = [
     { path: '/', label: 'Home', icon: Home },
-    { path: '/blog', label: 'Blog', icon: BookOpen },
-    { path: '/about', label: 'Our Story', icon: Info },
-    { path: '/contact', label: 'Contact', icon: Phone },
+
+
+
     { path: '/admin', label: 'Admin', icon: Lock }
   ];
 
@@ -30,8 +30,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
             <span className="text-primary">
-              {/* Leaf icon customized */}
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-leaf"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" /></svg>
+              <ClipboardCheck className="w-8 h-8" />
             </span>
             <span className="text-xl font-bold text-gray-900 hidden sm:inline-block">
               {content.global?.siteName || "EDGE2 MTR"}
