@@ -19,6 +19,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AlertCircle, Save, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
+
+function fillTemplate(template, data) {
+    return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
+        return data[key] ?? '';
+    });
+}
+
 const NewReportPage = () => {
     const { toast } = useToast();
     const [formData, setFormData] = useState({
@@ -343,7 +350,7 @@ const NewReportPage = () => {
                 setSitePhotoPreview(reader.result);
                 setFormData(prev => ({
                     ...prev,
-                    sitePhoto: file
+                    sitePhotos: [...prev.sitePhotos, reader.result]
                 }));
             };
             reader.readAsDataURL(file);
@@ -358,7 +365,7 @@ const NewReportPage = () => {
                 reader.onloadend = () => {
                     setFormData(prev => ({
                         ...prev,
-                        sitePhotos: [...prev.sitePhotos, { id: Date.now() + Math.random(), file, preview: reader.result }]
+                        sitePhotos: [...prev.sitePhotos, reader.result]
                     }));
                 };
                 reader.readAsDataURL(file);
@@ -366,10 +373,10 @@ const NewReportPage = () => {
         }
     };
 
-    const removeSitePhoto = (id) => {
+    const removeSitePhoto = (index) => {
         setFormData(prev => ({
             ...prev,
-            sitePhotos: prev.sitePhotos.filter(photo => photo.id !== id)
+            sitePhotos: prev.sitePhotos.filter((_, i) => i !== index)
         }));
     };
 
@@ -1165,7 +1172,7 @@ const NewReportPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Form Data JSON:', JSON.stringify(formData, null, 2));
+        // console.log('Form Data JSON:', JSON.stringify(formData, null, 2));
 
         // Simulating API call/submission
         toast({
@@ -1173,6 +1180,38 @@ const NewReportPage = () => {
             description: "The new report has been successfully generated.",
             className: "bg-green-50 border-green-200 text-green-900",
         });
+
+
+
+        // Open sample report in a new tab
+        // window.open('/sample-report.html', '_blank');
+
+        let htmlContent;
+
+        fetch('/report-template.html')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load HTML file');
+                }
+                return response.text();
+            })
+            .then(html => {
+                htmlContent = html;
+                // console.log(htmlContent);
+                const data = {
+                    siteAddress: formData.siteAddress,
+                    reportRequestJson: JSON.stringify(formData)
+                };
+                const filledHtml = fillTemplate(htmlContent, data);
+                // console.log(filledHtml);
+                console.log(formData);
+
+                const blob = new Blob([filledHtml], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+            })
+            .catch(err => console.error(err));
+
     };
 
     return (
@@ -1607,14 +1646,14 @@ const NewReportPage = () => {
                                 <div className="bg-gray-50/50 p-6 rounded-lg border border-gray-200">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100">Site Photos</h3>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        {formData.sitePhotos.map((photo) => (
-                                            <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                                                <img src={photo.preview} alt="Site" className="w-full h-full object-cover" />
+                                        {formData.sitePhotos.map((photo, index) => (
+                                            <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
+                                                <img src={photo} alt="Site" className="w-full h-full object-cover" />
                                                 <Button
                                                     type="button"
                                                     variant="destructive"
                                                     size="icon"
-                                                    onClick={() => removeSitePhoto(photo.id)}
+                                                    onClick={() => removeSitePhoto(index)}
                                                     className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                                                 >
                                                     <Trash2 className="w-3 h-3" />
