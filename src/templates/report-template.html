@@ -352,7 +352,7 @@
         padding: 2px 5px;
       }
 
-      #borehole-table {
+      /* #borehole-table {
         font-size: 12px;
         border: 1px solid black;
         border-collapse: collapse;
@@ -381,6 +381,24 @@
       #grain-size-table td {
         border: 1px solid black;
         border-collapse: collapse;
+      } */
+
+      .data-table {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+
+      .data-table th {
+        background-color: lightgray;
+      }
+
+      .data-table th,
+      .data-table td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      #borehole-table {
+        font-size: 12px;
       }
     </style>
   </head>
@@ -476,13 +494,14 @@
     <div class="page-wrapper">
       <div class="container">
         <div class="page-data">
+          <h2 style="text-align: center">Table of Contents</h2>
           <table
             class="contents-table"
             style="border-collapse: collapse; width: 100%"
           >
             <tbody>
               <tr>
-                <th style="text-align: center">Contents</th>
+                <th style="text-align: left">Contents</th>
                 <th>Page Nos.</th>
               </tr>
               <tr>
@@ -799,7 +818,7 @@
             Table 4.1 Details of Ground Level and termination depth of each
             Bore-Hole
           </h3>
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Sl.No</th>
@@ -821,7 +840,7 @@
             encounters early.
           </ptag>
           <h3>Table 4.2 Details of SPT Tests conducted in Boreholes</h3>
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Sl.No</th>
@@ -858,7 +877,7 @@
             Disturbed sample and Undisturbed samples were collected at Boreholes
             is as follows:
           </h4>
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Sl.No</th>
@@ -940,7 +959,7 @@
             borehole log come sub-soil profiles.
           </ptag>
           <h3>Table 5.1 Details of SPT Test Results conducted in Boreholes</h3>
-          <table id="sptvalue-bh-table" style="width: 100%">
+          <table id="sptvalue-bh-table" style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th colspan="5">SPT Value-BH1</th>
@@ -991,7 +1010,7 @@
           </table>
 
           <h3>5.2. Atterberg Limits</h3>
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Depth (m)</th>
@@ -1014,7 +1033,7 @@
             </tbody>
           </table>
           <h3>5.3. Specific Gravity</h3>
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Depth (m)</th>
@@ -1035,7 +1054,7 @@
           </table>
           <h3>5.4 Shear Parameters</h3>
 
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Depth (m)</th>
@@ -1062,7 +1081,7 @@
       <div class="container">
         <div class="page-data">
           <h3>5.5 Free Swell Index</h3>
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Depth (m)</th>
@@ -1082,7 +1101,7 @@
             </tbody>
           </table>
           <h3 style="">5.6 Chemical Analysis of Soil Sample</h3>
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Sl No.</th>
@@ -1102,7 +1121,7 @@
             </tbody>
           </table>
           <h3>5.7 Water Table</h3>
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>BH</th>
@@ -1127,7 +1146,7 @@
             <li>Settlement criteria</li>
           </ol>
           <h3>Table 6.1 Details of Recommended Safe Bearing Capacity</h3>
-          <table style="width: 100%">
+          <table style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Sl.No</th>
@@ -1249,10 +1268,8 @@
           <h2>
             Borehole Log, Sub-Soil Profile and Laboratory Test Results - BH 1
           </h2>
-
           <br /><br />
-
-          <table style="width: 100%" id="borehole-table" >
+          <table style="width: 100%" id="borehole-table" class="data-table">
             <tbody>
               <tr>
                 <th rowspan="2">Depth (m)</th>
@@ -1421,7 +1438,7 @@
             <h1>Figures</h1>
           </center>
           <h2>Grain Size Analysis</h2>
-          <table id="grain-size-table" style="width: 100%">
+          <table id="grain-size-table" style="width: 100%" class="data-table">
             <tbody>
               <tr>
                 <th>Sl No.</th>
@@ -1589,7 +1606,7 @@
           ></canvas>
           <br />
           <br /><br />
-          <table style="width: 100%; border: none">
+          <table style="width: 100%; border: none" class="data-table">
             <tbody>
               <tr>
                 <th>Samples</th>
