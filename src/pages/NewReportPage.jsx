@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.jsx";
-import { AlertCircle, Save, Plus, Trash2, FileText, TestTube, MapPin, ClipboardList, FileCheck, ArrowDownFromLine } from 'lucide-react';
+import { AlertCircle, ListTree, Save, Plus, Trash2, LandPlot, FileText, TestTube, MapPin, ClipboardList, FileCheck, ArrowDownFromLine, Layers, Lightbulb } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import reportTemplateHtml from '@/templates/report-template.html?raw'
 
@@ -1268,48 +1268,48 @@ const NewReportPage = () => {
                         </div>
                     </CardHeader>
 
-                    <CardContent className="p-6">
+                    <CardContent className="p-2">
                         <form onSubmit={handleSubmit} className="space-y-8">
                             <Tabs defaultValue="basic" className="w-full">
                                 <TabsList className="grid w-full grid-cols-8 mb-8">
-                                    <TabsTrigger value="basic" className="flex items-center gap-2">
+                                    <TabsTrigger value="basic" className="flex items-center gap-1">
                                         <MapPin className="w-4 h-4" />
                                         <span className="hidden sm:inline">Basic Info</span>
                                         <span className="sm:hidden">Basic</span>
                                     </TabsTrigger>
-                                    <TabsTrigger value="survey" className="flex items-center gap-2">
+                                    <TabsTrigger value="survey" className="flex items-center gap-1">
                                         <ClipboardList className="w-4 h-4" />
                                         <span className="hidden sm:inline">Survey</span>
                                         <span className="sm:hidden">Survey</span>
                                     </TabsTrigger>
-                                    <TabsTrigger value="borehole" className="flex items-center gap-2">
-                                        <FileText className="w-4 h-4" />
+                                    <TabsTrigger value="borehole" className="flex items-center gap-1">
+                                        <ListTree className="w-4 h-4" />
                                         <span className="hidden sm:inline">Borehole Logs</span>
                                         <span className="sm:hidden">Bore</span>
                                     </TabsTrigger>
-                                    <TabsTrigger value="lab" className="flex items-center gap-2">
+                                    <TabsTrigger value="lab" className="flex items-center gap-1">
                                         <TestTube className="w-4 h-4" />
                                         <span className="hidden sm:inline">Lab Tests</span>
                                         <span className="sm:hidden">Lab</span>
                                     </TabsTrigger>
-                                    <TabsTrigger value="pointload" className="flex items-center gap-2">
+                                    <TabsTrigger value="pointload" className="flex items-center gap-1">
                                         <ArrowDownFromLine className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Point Load Strength</span>
+                                        <span className="hidden sm:inline">Point Load</span>
                                         <span className="sm:hidden">Point</span>
                                     </TabsTrigger>
-                                    <TabsTrigger value="sbc" className="flex items-center gap-2">
-                                        <FileCheck className="w-4 h-4" />
+                                    <TabsTrigger value="sbc" className="flex items-center gap-1">
+                                        <LandPlot className="w-4 h-4" />
                                         <span className="hidden sm:inline">SBC Details</span>
                                         <span className="sm:hidden">SBC</span>
                                     </TabsTrigger>
-                                    <TabsTrigger value="rock" className="flex items-center gap-2">
-                                        <FileCheck className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Foundation In Rock</span>
+                                    <TabsTrigger value="rock" className="flex items-center gap-1">
+                                        <Layers className="w-4 h-4" />
+                                        <span className="hidden sm:inline">Foundation </span>
                                         <span className="sm:hidden">Rock</span>
                                     </TabsTrigger>
-                                    <TabsTrigger value="recommendations" className="flex items-center gap-2">
-                                        <FileText className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Recommendations</span>
+                                    <TabsTrigger value="recommendations" className="flex items-center gap-1">
+                                        <Lightbulb className="w-4 h-4" />
+                                        <span className="hidden sm:inline">Recommendation</span>
                                         <span className="sm:hidden">Rec</span>
                                     </TabsTrigger>
                                 </TabsList>
