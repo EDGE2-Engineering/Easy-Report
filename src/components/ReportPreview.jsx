@@ -12,6 +12,45 @@ const Page = ({ children }) => (
     </div>
 );
 
+const AutoFontSize = ({ children, maxHeight, baseFontSize, minFontSize = 8, className = "" }) => {
+    const containerRef = React.useRef(null);
+    const [fontSize, setFontSize] = React.useState(baseFontSize);
+
+    React.useLayoutEffect(() => {
+        if (!containerRef.current) return;
+
+        const checkOverflow = () => {
+            const element = containerRef.current;
+            if (element.scrollHeight > maxHeight && fontSize > minFontSize) {
+                setFontSize(prev => Math.max(minFontSize, prev - 0.5));
+            }
+        };
+
+        checkOverflow();
+    }, [children, maxHeight, fontSize, minFontSize]);
+
+    // Reset font size when content changes significantly
+    React.useEffect(() => {
+        setFontSize(baseFontSize);
+    }, [children, baseFontSize]);
+
+    return (
+        <div
+            ref={containerRef}
+            className={className}
+            style={{
+                fontSize: `${fontSize}pt`,
+                lineHeight: '1.2',
+                maxHeight: `${maxHeight}px`,
+                overflow: 'hidden',
+                wordBreak: 'break-word'
+            }}
+        >
+            {children}
+        </div>
+    );
+};
+
 const ReportPreview = ({ formData, onClose }) => {
     if (!formData) return null;
 
@@ -63,23 +102,28 @@ const ReportPreview = ({ formData, onClose }) => {
                         {/* Page 1: Front Sheet */}
                         <Page>
                             <div className="flex flex-col items-center h-full text-center font-sans" style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}>
-                                <div className="mt-2 mb-8">
-                                    <h1 className="text-[20px] text-[#29299a] leading-tight mb-4">
+                                <div className="mt-2 mb-8 w-full max-h-[10cm] overflow-hidden flex flex-col items-center">
+                                    <h1 className="text-[20px] text-[#29299a] leading-tight mb-4 w-full px-4">
                                         Geo-Technical Investigation Report for <br />
-                                        Construction of <span className="font-bold">{formData.projectType || '________________'}</span> at <br />
-                                        <span className="text-[15px]">{formData.siteAddress || '________________'}</span>
+                                        Construction of <span className="font-bold inline-block align-bottom">{formData.projectType || '________________'}</span> at <br />
+                                        <AutoFontSize maxHeight={60} baseFontSize={15} minFontSize={10} className="mt-2">
+                                            {formData.siteAddress || '________________'}
+                                        </AutoFontSize>
                                     </h1>
 
                                     <p className="text-[18px] text-black mt-8 mb-4">Submitted to</p>
 
-                                    <h2 className="text-[20px] font-bold text-[#29299a]">
+                                    <AutoFontSize maxHeight={60} baseFontSize={20} minFontSize={12} className="font-bold text-[#29299a] px-4">
                                         {formData.client || '________________'}
-                                    </h2>
-                                    <p className="text-[#29299a] text-[11pt] mt-1">{formData.clientAddress || '________________'}</p>
+                                    </AutoFontSize>
+
+                                    <AutoFontSize maxHeight={70} baseFontSize={11} minFontSize={8} className="text-[#29299a] mt-1 px-8">
+                                        {formData.clientAddress || '________________'}
+                                    </AutoFontSize>
                                 </div>
 
                                 {clientLogo && (
-                                    <div className="mb-12">
+                                    <div className="mb-12 flex-shrink-0">
                                         <img src={clientLogo} alt="Client Logo" className="max-w-[4cm] max-h-[4cm] object-contain" />
                                     </div>
                                 )}
@@ -98,11 +142,11 @@ const ReportPreview = ({ formData, onClose }) => {
                                             </tr>
                                             <tr className="border-b border-black/10">
                                                 <td className="py-1.5 pr-4 font-bold text-left">Site Name:</td>
-                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left">{formData.siteName || '________________'}</td>
+                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left line-clamp-2">{formData.siteName || '________________'}</td>
                                             </tr>
                                             <tr className="border-b border-black/10">
                                                 <td className="py-1.5 pr-4 font-bold text-left">Project Name:</td>
-                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left">{formData.projectDetails || '________________'}</td>
+                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left line-clamp-2">{formData.projectDetails || '________________'}</td>
                                             </tr>
                                             {formData.sbcDetails && formData.sbcDetails[0] && formData.sbcDetails[0]
                                                 .filter(s => s.useForReport)
