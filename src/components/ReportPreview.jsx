@@ -3,53 +3,29 @@ import logo from '@/assets/edge2-logo.png';
 import { X, Printer, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const Page = ({ children }) => (
+const Page = ({ children, reportId, pageNumber, totalPages }) => (
     <div className="a4-page shadow-2xl print:shadow-none bg-white relative overflow-hidden"
-        style={{ width: '210mm', height: '297mm', padding: '10mm', minHeight: '297mm', boxSizing: 'border-box' }}>
-        <div className="border-[0.5pt] border-black h-[277mm] relative p-8 flex flex-col">
-            {children}
+        style={{ width: '210mm', height: '297mm', padding: '10mm', minHeight: '297mm', boxSizing: 'border-box', pageBreakAfter: 'always', breakAfter: 'page' }}>
+        <div className="border-[0.5pt] border-black h-[277mm] relative p-2 flex flex-col overflow">
+            <div className="flex-grow overflow-hidden">
+                {children}
+            </div>
+            {/* Page Footer */}
+            <div className="absolute bottom-[-25px] left-[5px] right-[5px]">
+                <div className="pt-2 text-gray-700 grid grid-cols-2 items-center">
+                    <p className="font-semibold text-[9pt] text-left">
+                        EDGE2 Engineering Solutions India Pvt. Ltd.
+                    </p>
+                    <p className="text-[8pt] text-right font-semibold">
+                        Report ID: {reportId || 'N/A'} <span className="text-[8pt] px-4 text-right">|</span> Page {pageNumber} of {totalPages}
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 );
 
-const AutoFontSize = ({ children, maxHeight, baseFontSize, minFontSize = 8, className = "" }) => {
-    const containerRef = React.useRef(null);
-    const [fontSize, setFontSize] = React.useState(baseFontSize);
 
-    React.useLayoutEffect(() => {
-        if (!containerRef.current) return;
-
-        const checkOverflow = () => {
-            const element = containerRef.current;
-            if (element.scrollHeight > maxHeight && fontSize > minFontSize) {
-                setFontSize(prev => Math.max(minFontSize, prev - 0.5));
-            }
-        };
-
-        checkOverflow();
-    }, [children, maxHeight, fontSize, minFontSize]);
-
-    // Reset font size when content changes significantly
-    React.useEffect(() => {
-        setFontSize(baseFontSize);
-    }, [children, baseFontSize]);
-
-    return (
-        <div
-            ref={containerRef}
-            className={className}
-            style={{
-                fontSize: `${fontSize}pt`,
-                lineHeight: '1.2',
-                maxHeight: `${maxHeight}px`,
-                overflow: 'hidden',
-                wordBreak: 'break-word'
-            }}
-        >
-            {children}
-        </div>
-    );
-};
 
 const ReportPreview = ({ formData, onClose }) => {
     if (!formData) return null;
@@ -67,6 +43,21 @@ const ReportPreview = ({ formData, onClose }) => {
     };
 
     const clientLogo = getClientLogo();
+
+    // Calculate total pages dynamically
+    const numBoreholes = formData.boreholeLogs?.length || 0;
+    const numLabTestPages = formData.labTestResults?.length || 0;
+    const numGrainSizePages = formData.grainSizeAnalysis?.length || 0;
+    const numSBCPages = formData.sbcDetails?.length || 0;
+    const numChemicalPages = formData.chemicalAnalysis?.length > 0 ? 1 : 0;
+    const numPhotoPages = formData.sitePhotos?.length > 0 ? 1 : 0;
+
+    // 3 static pages + dynamic pages
+    const totalPages = 3 + numBoreholes + numLabTestPages + numGrainSizePages + numSBCPages + numChemicalPages + numPhotoPages;
+
+    // Page counter to track current page number
+    let currentPage = 0;
+
 
     return (
         <div id="report-preview-modal" className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 print:p-0 print:bg-white overflow-hidden print:block print:relative print:inset-auto print:z-auto">
@@ -100,74 +91,72 @@ const ReportPreview = ({ formData, onClose }) => {
                     <div className="flex flex-col items-center space-y-12 print:space-y-0 print:block">
 
                         {/* Page 1: Front Sheet */}
-                        <Page>
+                        <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                             <div className="flex flex-col items-center h-full text-center font-sans" style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}>
-                                <div className="mt-2 mb-8 w-full max-h-[10cm] overflow-hidden flex flex-col items-center">
-                                    <h1 className="text-[20px] text-[#29299a] leading-tight mb-4 w-full px-4">
-                                        Geo-Technical Investigation Report for <br />
-                                        Construction of <span className="font-bold inline-block align-bottom">{formData.projectType || '________________'}</span> at <br />
-                                        <AutoFontSize maxHeight={60} baseFontSize={15} minFontSize={10} className="mt-2">
-                                            {formData.siteAddress || '________________'}
-                                        </AutoFontSize>
+                                <div className="mt-2 mb-2 w-full max-h-[10cm] flex flex-col items-center">
+                                    <h1 className="text-[16px] text-[#29299a] font-bold leading-tight mb-0 w-full px-2 uppercase">
+                                        Geo-Technical Investigation Report for Construction of <span className="font-bold inline-block align-bottom">{formData.projectType || '________________'}</span> at
                                     </h1>
+                                    <p className="text-[11pt] text-[#29299a] mt-0 px-0 max-h-[45px] line-clamp-3">
+                                        {formData.siteAddress || '________________'}
+                                    </p>
+                                    <p className="text-[16px] font-bold text-black mt-4 mb-4">Issued to</p>
 
-                                    <p className="text-[18px] text-black mt-8 mb-4">Submitted to</p>
-
-                                    <AutoFontSize maxHeight={60} baseFontSize={20} minFontSize={12} className="font-bold text-[#29299a] px-4">
+                                    <h2 className="text-[16px] font-bold text-[#29299a] px-2 max-h-[60px] line-clamp-2">
                                         {formData.client || '________________'}
-                                    </AutoFontSize>
+                                    </h2>
 
-                                    <AutoFontSize maxHeight={70} baseFontSize={11} minFontSize={8} className="text-[#29299a] mt-1 px-8">
+                                    <p className="text-[11pt] text-[#29299a] mt-1 px-2 max-h-[70px] line-clamp-3">
                                         {formData.clientAddress || '________________'}
-                                    </AutoFontSize>
+                                    </p>
                                 </div>
 
                                 {clientLogo && (
-                                    <div className="mb-12 flex-shrink-0">
+                                    <div className="mt-4 mb-8 flex-shrink-0">
                                         <img src={clientLogo} alt="Client Logo" className="max-w-[4cm] max-h-[4cm] object-contain" />
                                     </div>
                                 )}
 
                                 {/* Report Details Table */}
-                                <div className="w-full max-w-[15cm] mx-auto mb-12">
+                                <div className="w-full max-w-[18cm] mx-auto mb-12">
                                     <table className="w-full border-collapse text-[10pt]">
                                         <tbody>
                                             <tr className="border-b border-black/10">
                                                 <td className="py-1.5 pr-4 font-bold w-1/3 text-left">Report ID:</td>
-                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left">{formData.reportId || '________________'}</td>
+                                                <td className="py-1.5 pl-4 border-black/20 font-medium text-left">{formData.reportId || '________________'}</td>
                                             </tr>
                                             <tr className="border-b border-black/10">
                                                 <td className="py-1.5 pr-4 font-bold text-left">Site ID:</td>
-                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left">{formData.siteId || '________________'}</td>
+                                                <td className="py-1.5 pl-4 border-black/20 font-medium text-left">{formData.siteId || '________________'}</td>
                                             </tr>
                                             <tr className="border-b border-black/10">
                                                 <td className="py-1.5 pr-4 font-bold text-left">Site Name:</td>
-                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left line-clamp-2">{formData.siteName || '________________'}</td>
+                                                <td className="py-1.5 pl-4 border-black/20 font-medium text-left line-clamp-3">{formData.siteName || '________________'}</td>
                                             </tr>
                                             <tr className="border-b border-black/10">
                                                 <td className="py-1.5 pr-4 font-bold text-left">Project Name:</td>
-                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left line-clamp-2">{formData.projectDetails || '________________'}</td>
+                                                <td className="py-1.5 pl-4 border-black/20 font-medium text-left line-clamp-2">{formData.projectDetails || '________________'}</td>
                                             </tr>
                                             {formData.sbcDetails && formData.sbcDetails[0] && formData.sbcDetails[0]
                                                 .filter(s => s.useForReport)
                                                 .map((s, idx) => (
                                                     <tr key={idx} className="border-b border-black/10">
                                                         <td className="py-1.5 pr-4 font-bold text-left">SBC Value {idx + 1}:</td>
-                                                        <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left">{s.sbcValue || '________________'}</td>
+                                                        <td className="py-1.5 pl-4 border-black/20 font-medium text-left">{s.sbcValue || '________________'}</td>
                                                     </tr>
                                                 ))
                                             }
                                             <tr className="border-b border-black/10">
                                                 <td className="py-1.5 pr-4 font-bold text-left">Ground Water Table:</td>
-                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left">{formData.groundWaterTable || 'Not Encountered'}</td>
+                                                <td className="py-1.5 pl-4 border-black/20 font-medium text-left">{formData.groundWaterTable || 'Not Encountered'}</td>
                                             </tr>
                                             <tr className="border-b border-black/10">
                                                 <td className="py-1.5 pr-4 font-bold text-left">Survey Date:</td>
-                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left">{formData.surveyDate || '________________'}</td>
+                                                <td className="py-1.5 pl-4 border-black/20 font-medium text-left">{formData.surveyDate || '________________'}</td>
                                             </tr>
                                             <tr>
                                                 <td className="py-1.5 pr-4 font-bold text-left">Report Created On:</td>
-                                                <td className="py-1.5 pl-4 border-l border-black/20 font-medium text-left">{formData.reportCreatedOn}</td>
+                                                <td className="py-1.5 pl-4 border-black/20 font-medium text-left">{formData.reportCreatedOn}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -211,7 +200,7 @@ const ReportPreview = ({ formData, onClose }) => {
                         </Page>
 
                         {/* Page 2: Table of Contents */}
-                        <Page>
+                        <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                             <h2 className="text-center font-bold text-[16pt] mb-8 uppercase text-blue-900">Table of Contents</h2>
                             <table className="w-full border-collapse text-[11pt]">
                                 <thead>
@@ -239,13 +228,10 @@ const ReportPreview = ({ formData, onClose }) => {
                                     ))}
                                 </tbody>
                             </table>
-                            <div className="mt-auto pt-10 text-center">
-                                <p className="text-[9pt] text-gray-400 italic">This report contains comprehensive technical data and recommendations for foundation design.</p>
-                            </div>
                         </Page>
 
                         {/* Existing Page 2 (now 3) */}
-                        <Page>
+                        <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                             <h1 className="text-center font-bold text-[14pt] mb-10 uppercase text-blue-900">Technical Report for Geo-technical Investigation</h1>
                             {/* ... Content already there ... */}
 
@@ -253,7 +239,7 @@ const ReportPreview = ({ formData, onClose }) => {
                                 <h2 className="text-[12pt] font-bold mb-4 flex items-center">
                                     <span className="bg-blue-900 text-white px-2 mr-3">1.0</span> INTRODUCTION
                                 </h2>
-                                <div className="text-[11pt] text-justify leading-relaxed">
+                                <div className="text-[10pt] text-justify leading-relaxed">
                                     <p className="mb-4">
                                         <strong>M/s {formData.client || '________________'}</strong>, Proposes to Construct
                                         {' '}{formData.projectType || '________________'} situated at {formData.siteAddress || '________________'}.
@@ -266,22 +252,53 @@ const ReportPreview = ({ formData, onClose }) => {
 
                             <section className="mb-8">
                                 <h2 className="text-[12pt] font-bold mb-4 flex items-center">
-                                    <span className="bg-blue-900 text-white px-2 mr-3">2.0</span> OBJECTIVES AND SCOPE OF WORK
+                                    <span className="bg-blue-900 text-white px-2 mr-3">2.0</span>LOCATION OF PROJECT SITE
                                 </h2>
-                                <ul className="list-disc ml-8 text-[11pt] space-y-2">
+                                <p className="text-[10pt] mb-4">
+                                    The proposed Project Site is located at the site plan showing number and depth of Bore-Hole Investigations were carried out in detail.
+                                </p>
+                            </section>
+
+                            <section className="mb-8">
+                                <h2 className="text-[12pt] font-bold mb-4 flex items-center">
+                                    <span className="bg-blue-900 text-white px-2 mr-3 uppercase ">3.0</span> OBJECTIVES AND SCOPE OF WORK
+                                </h2>
+                                <h2 className="text-[10pt] font-bold mb-4 flex items-center">
+                                    <span className="bg-blue-700 text-white px-2 mr-3 uppercase ">3.1</span> OBJECTIVES
+                                </h2>
+                                <p className="text-[10pt] mb-4">
+                                    The objectives of Geo-Technical Investigation is to evaluate the following:
+                                </p>
+                                <ul className="list-disc ml-8 text-[10pt] space-y-2">
                                     <li>To ascertain the sub-soil strata at each site</li>
                                     <li>To study standing Ground Water Level</li>
                                     <li>To study the physical and engineering properties of soil strata</li>
                                     <li>To evaluate allowable safe bearing capacity of soil</li>
                                     <li>To recommend type and depth of foundation</li>
                                 </ul>
+                                <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                    <span className="bg-blue-700 text-white px-2 mr-3 uppercase ">3.2</span> SCOPE OF WORK
+                                </h2>
+                                <p className="text-[10pt] mb-4">
+                                    The Scope of Geo-technical Investigations includes the following Insitu and Lab Tests.
+                                </p>
+                                <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                    <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">3.2.1</span> FIELD INVESTIGATIONS
+                                </h2>
+                                    <ul className="list-disc ml-8 text-[10pt] space-y-2">
+                                        <li>Boring 01 No of 100/150mm dia Boreholes in all kinds of soil up to 10 m depth or refusal strata (N>100 blows for 30 cm penetrations) whichever encounters early.</li>
+                                        <li>Conducting field-tests such as Standard Penetration Tests as per IS 2131-1981.</li>
+                                        <li>Collecting disturbed and undisturbed soil samples.</li>
+                                        <li>To study and record the standing Ground Water Table Level.</li>
+                                        <li>To ascertain the sub-soil strata and ground topography.</li>
+                                    </ul>
                             </section>
 
-                            <section className="mb-8">
-                                <h2 className="text-[12pt] font-bold mb-4 flex items-center">
+                            {/* <section className="mb-8">
+                                <h2 className="text-[10pt] font-bold mb-4 flex items-center">
                                     <span className="bg-blue-900 text-white px-2 mr-3">3.0</span> FIELD INVESTIGATIONS
                                 </h2>
-                                <p className="text-[11pt] mb-4">
+                                <p className="text-[10pt] mb-4">
                                     To study sub-soil strata, field investigations were carried out by drilling {formData.boreholeLogs?.length || 1} No borehole(s) at the specified locations.
                                 </p>
                                 <table className="w-full border-collapse border border-black text-[10pt] text-center">
@@ -302,12 +319,152 @@ const ReportPreview = ({ formData, onClose }) => {
                                         ))}
                                     </tbody>
                                 </table>
+                            </section> */}
+                        </Page>
+
+                        <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
+                            <section className="mb-8">
+                                <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                    <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">3.2.2</span> LABORATORY TESTING
+                                </h2>
+                                <p className="text-[10pt] mb-4">The scope of Laboratory Testing is as follows:</p>
+                                <ul className="list-disc ml-8 text-[10pt] space-y-2">
+                                    <li>Grain Size Analysis as per IS 2720 - Part 4 – 1985</li>
+                                    <li>Atterberg Limits as per IS 2720 - Part 5 - 1985, IS 2720 - Part 2 - 1973</li>
+                                    <li>Determination of natural moisture content as per IS 2720 - Part 2 - 1973</li>
+                                    <li>Specific Gravity as per IS 2720 (Part 3/Sec1) - 1980</li>
+                                    <li>Free Swell Index as per IS 2720 (Part 40) - 1977</li>
+                                    <li>Direct Shear Test as per IS 2720 (Part 13) - 1986</li>
+                                    <li>Chemical Analysis</li>
+                                </ul>
+                                 <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                    <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">3.3</span> REPORTING SPECIFICATIONS
+                                </h2>
+                                <p className="text-[10pt] mb-4">
+                                    This comprises preparing a detailed report including soil profiles, physical and engineering properties of soil/rock strata based on laboratory as well as field investigation/tests, recommendations regarding allowable bearing pressure, type and depth of foundations and improvement in bearing capacity if any. Submission of Detailed Technical Report with complete relevant recommendations.
+                                </p>
+                                <h2 className="text-[12pt] font-bold mb-4 flex items-center">
+                                    <span className="bg-blue-900 text-white px-2 mr-3 uppercase ">4</span> SCHEDULE OF INVESTIGATIONS
+                                </h2>
+                                <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                    <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">4.1</span> FIELD INVESTIGATIONS
+                                </h2>
+                                <p className="text-[10pt] mb-4">To study sub-soil strata, field investigations were carried out by drilling 01 No 100mm/ 150 mm dia Boreholes using hand operated Auger Boreholes at the specified locations.</p>
+                                <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                    <span className="bg-gray-200 text-black px-2 mr-3 uppercase "> Table 4.1 </span> Details of Ground Level and termination depth of each Bore-Hole
+                                </h2>
+                                <table className="w-full border-collapse border border-black text-[10pt] text-center">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="border border-black p-2">Sl.No</th>
+                                            <th className="border border-black p-2">BH No.</th>
+                                            <th className="border border-black p-2">Termination Depth (m)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {formData.boreholeLogs?.map((log, index) => (
+                                            <tr key={index}>
+                                                <td className="border border-black p-2">{index + 1}</td>
+                                                <td className="border border-black p-2">BH {index + 1}</td>
+                                                <td className="border border-black p-2">{log[log.length - 1]?.depth || '-'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                    <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">4.2</span> STANDARD PENETRATION TESTS
+                                </h2>
+                                <p className="text-[10pt] mb-4">The Standard Penetration Tests (SPT) were conducted using split spoon sampler as per IS-2131-1981 at various depths in Boreholes to determine (N>100 blows for 30 cm penetrations) whichever encounters early.</p>
+                                <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                    <span className="bg-gray-200 text-black px-2 mr-3 uppercase "> Table 4.2 </span> Details of SPT Tests conducted in Boreholes
+                                </h2>
+                                <table className="w-full border-collapse border border-black text-[10pt] text-center">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="border border-black p-2">Sl.No</th>
+                                            <th className="border border-black p-2">BH No.</th>
+                                            <th className="border border-black p-2">SPT Depth / Levels (m)</th>
+                                            <th className="border border-black p-2">Remarks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {formData.boreholeLogs?.map((log, index) => (
+                                            <tr key={index}>
+                                                <td className="border border-black p-2">{index + 1}</td>
+                                                <td className="border border-black p-2">BH {index + 1}</td>
+                                                <td className="border border-black p-2">{log[log.length - 1]?.depth || '-'}</td>
+                                                <td className="border border-black p-2">{log[log.length - 1]?.remarks || '-'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </section>
+                        </Page>
+
+                        <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">4.3</span>  DISRUPTED / REPRESENTATIVE SOIL SAMPLES (DS/RS)
+                            </h2>
+                            <p className="text-[10pt] mb-4">Disturbed / Representative samples (DS / RS) were collected during drilling and also during SPT Tests. The Representative Samples were collected from the split spoon sampler. The samples recovered were packed in polythene bags, labelled and sent to the laboratory for testing.</p>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-gray-200 text-black px-2 mr-3 uppercase "> Table 4.3 </span> Details of Sampling in Boreholes
+                            </h2>
+                            <p className="text-[10pt] mb-4">Disturbed sample and Undisturbed samples were collected at Boreholes is as follows:</p>  
+                            <table className="w-full border-collapse border border-black text-[10pt] text-center">
+                                <thead>
+                                    <tr className="bg-gray-100">
+                                        <th className="border border-black p-2">Sl.No</th>
+                                        <th className="border border-black p-2">BH No.</th>
+                                        <th className="border border-black p-2">Sampling Depth (m)</th>
+                                        <th className="border border-black p-2">Sample Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {formData.boreholeLogs?.map((log, index) => (
+                                        <tr key={index}>
+                                            <td className="border border-black p-2">{index + 1}</td>
+                                            <td className="border border-black p-2">BH {index + 1}</td>
+                                            <td className="border border-black p-2">{log
+                                                .map(item => item.depth ?? '-')
+                                                .join(', ')}
+                                            </td>
+                                            <td className="border border-black p-2">{log[log.length - 1]?.natureOfSampling || '-'}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                Refusal Strata / Rock Depth
+                            </h2>
+                            <p className="text-[10pt] mb-4">The depth of Refusal Strata and Rock at different Borehole locations were collected during investigations and recorded in the Borehole logs.</p>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">4.3</span>  GROUND TOPOGRAPHY, GEOLOGY OF THE AREA AND SUB-SOIL DETAILS
+                            </h2>
+                            <p className="text-[10pt] mb-4">The ground topography, geology at the Project Site location and sub-soil details at the Site location was studied and recorded in the Borehole logs. The soil was classified as per IS 1498-1970.</p>
+                            <h2 className="text-[12pt] font-bold mb-4 flex items-center">
+                                <span className="bg-blue-900 text-white px-2 mr-3 uppercase ">5</span> RESULTS AND DISCUSSIONS
+                            </h2>
+                            <p className="text-[10pt] mb-4">
+                                The results of field investigations and laboratory tests are presented in Borehole log.
+                            </p>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">5.1</span> SOIL PROFILE AND CLASSIFICATION
+                            </h2>
+                            <p className="text-[10pt] mb-4">The ground topography at all the Site locations is fairly level. General Subsoil profile is interpreted from borehole. For this purpose whenever necessary field borehole logs have been corrected on the basis of laboratory tests conducted on samples. However, based on interpretation of the borehole logs the following general stratification and soil has been observed.</p>
+                            <ul className="list-disc ml-8 text-[10pt] space-y-2">
+                                <li>Top Ground soil: Laterite Rock</li>
+                                <li>Intermediate Soil: Grayish Clay of High Plasticity (CH)</li>
+                            </ul>
+                            <p className="text-[10pt] mb-4 mt-4">The Grain Size Distribution Curves are presented in Figure 1.</p>
+                        </Page>
+
+                        <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
+                            TODO FROM HERE
                         </Page>
 
                         {/* Borehole Log Pages */}
                         {formData.boreholeLogs?.map((log, bhIndex) => (
-                            <Page key={`bh-${bhIndex}`}>
+                            <Page key={`bh-${bhIndex}`} reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                                 <h4 className="font-bold text-[12pt] mb-4 text-blue-900">Borehole Log, Sub-Soil Profile and Laboratory Test Results: (BH {bhIndex + 1})</h4>
                                 <div className="flex-1 overflow-x-auto">
                                     <table className="w-full border-collapse border border-black text-[8pt] text-center">
@@ -374,7 +531,7 @@ const ReportPreview = ({ formData, onClose }) => {
 
                         {/* Lab Test Results Pages */}
                         {formData.labTestResults?.map((results, bhIndex) => (
-                            <Page key={`lab-${bhIndex}`}>
+                            <Page key={`lab-${bhIndex}`} reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                                 <h4 className="font-bold text-[12pt] mb-4 text-blue-900">Summary of Laboratory Test Results: (BH {bhIndex + 1})</h4>
                                 <div className="flex-1">
                                     <table className="w-full border-collapse border border-black text-[8pt] text-center">
@@ -421,7 +578,7 @@ const ReportPreview = ({ formData, onClose }) => {
 
                         {/* Direct Shear Test Results */}
                         {formData.directShearResults?.map((analysis, bhIndex) => (
-                            <Page key={`ds-${bhIndex}`}>
+                            <Page key={`ds-${bhIndex}`} reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                                 <h4 className="font-bold text-[12pt] mb-4 text-blue-900">Direct Shear Test Results: (BH {bhIndex + 1})</h4>
                                 <div className="flex-1">
                                     <table className="w-full border-collapse border border-black text-[9pt] text-center">
@@ -450,7 +607,7 @@ const ReportPreview = ({ formData, onClose }) => {
 
                         {/* Grain Size Analysis Pages */}
                         {formData.grainSizeAnalysis?.map((analysis, bhIndex) => (
-                            <Page key={`gsa-${bhIndex}`}>
+                            <Page key={`gsa-${bhIndex}`} reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                                 <h4 className="font-bold text-[12pt] mb-4 text-blue-900">Grain Size Analysis Results: (BH {bhIndex + 1})</h4>
                                 <div className="flex-1">
                                     <table className="w-full border-collapse border border-black text-[8pt] text-center">
@@ -488,7 +645,7 @@ const ReportPreview = ({ formData, onClose }) => {
 
                         {/* SBC Details Pages */}
                         {formData.sbcDetails?.map((details, bhIndex) => (
-                            <Page key={`sbc-${bhIndex}`}>
+                            <Page key={`sbc-${bhIndex}`} reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                                 <h4 className="font-bold text-[12pt] mb-4 text-blue-900">Safe Bearing Capacity (SBC) Calculations: (BH {bhIndex + 1})</h4>
                                 <div className="flex-1">
                                     <table className="w-full border-collapse border border-black text-[9pt] text-center">
@@ -548,7 +705,7 @@ const ReportPreview = ({ formData, onClose }) => {
 
                         {/* Foundation in Rock Formations */}
                         {formData.foundationRockFormations && formData.foundationRockFormations.length > 0 && (
-                            <Page>
+                            <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                                 <h4 className="font-bold text-[12pt] mb-4 text-blue-900">Foundation In Rock Formations</h4>
                                 <div className="flex-1">
                                     <table className="w-full border-collapse border border-black text-[10pt] text-center">
@@ -575,7 +732,7 @@ const ReportPreview = ({ formData, onClose }) => {
 
                         {/* Site Photos Page */}
                         {formData.sitePhotos && formData.sitePhotos.length > 0 && (
-                            <Page>
+                            <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                                 <h4 className="font-bold text-[12pt] mb-6 text-blue-900 border-b pb-2 uppercase">Annexure: Site Photographs</h4>
                                 <div className="grid grid-cols-2 gap-8 overflow-y-auto max-h-[240mm]">
                                     {formData.sitePhotos.map((photo, index) => (
@@ -591,7 +748,7 @@ const ReportPreview = ({ formData, onClose }) => {
                         )}
 
                         {/* Recommendations & Conclusions Page */}
-                        <Page>
+                        <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                             <h2 className="text-[12pt] font-bold mb-4 flex items-center">
                                 <span className="bg-blue-900 text-white px-2 mr-3">4.0</span> RECOMMENDATIONS & CONCLUSIONS
                             </h2>
@@ -687,9 +844,27 @@ const ReportPreview = ({ formData, onClose }) => {
                         break-after: page !important;
                         -webkit-print-color-adjust: exact !important;
                         print-color-adjust: exact !important;
+                        overflow: hidden !important;
+                    }
+                    .a4-page:last-child {
+                        page-break-after: auto !important;
                     }
                     .print\\:hidden {
                         display: none !important;
+                    }
+                    /* Prevent content from breaking across pages */
+                    h1, h2, h3, h4, h5, h6 {
+                        page-break-after: avoid !important;
+                        break-after: avoid !important;
+                    }
+                    table, figure, img {
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                    }
+                    /* Prevent orphans and widows */
+                    p {
+                        orphans: 3;
+                        widows: 3;
                     }
                     /* Ensure headers don't get cut off */
                     @page {

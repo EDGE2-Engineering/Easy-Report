@@ -74,235 +74,281 @@ const NewReportPage = () => {
         }));
         setShowClientSuggestions(false);
     };
-    const [formData, setFormData] = useState({
-        projectType: '',
-        reportId: '',
-        projectDetails: 'GBT 40m',
-        client: '',
-        clientAddress: '',
-        latitude: '',
-        longitude: '',
-        siteId: '',
-        anchorId: '',
-        siteName: '',
-        siteAddress: '',
-        surveyDate: '',
-        groundWaterTable: '',
-        isCodes: [
-            { key: 'Natural water content', value: 'IS:2720 - (Part 2) - 1973' },
-            { key: 'Grain size analysis', value: 'IS:2720 - (Part 4) - 1985' },
-            { key: 'Atterberg Limits', value: 'IS:2720 - (Part 5) - 1985' },
-            { key: 'Field density', value: 'IS:2720 - (Part 10) - 1993' },
-            { key: 'Specific Gravity', value: 'IS:2720 - (Part 3) - 1980' },
-            { key: 'Standard penetration test (SPT)', value: 'IS:2131 - 1981' },
-            { key: 'Shear strength parameters', value: 'IS:2720 - (Part 13) - 1986' },
-            { key: 'Free Swell Index', value: 'IS:2720 - (Part 40) - 1977' },
-            { key: 'Chemical Analysis', value: 'IS:2720 - (Part 26) - 1987 & (Part 27) - 1977' },
-            { key: 'Foundation design on rock', value: 'IS:12070 - 1987' },
-            { key: 'Breaking Capacity of Shallow Foundation', value: 'IS:6403 - 1981' },
-            { key: 'Settlement of Foundation', value: 'IS:8009 - 1976' },
-            { key: 'Soil Classification', value: 'IS:1498 - 1970' },
-            { key: 'Point Load Index of Rock', value: 'IS:8764 - 1998' },
-            { key: 'Qualitative Classification System of Rock Mass', value: 'IS:13365 - (Part 1) - 1998' }
-        ],
-        surveyReport: [
-            { key: 'Weather condition', value: '' },
-            { key: 'Site Dimension', value: '' },
-            { key: 'Ground or seepage water', value: '' },
-            { key: 'Site to main road distance', value: '' },
-            { key: 'Terrain Details (Agriculture/Hilly/Plain)', value: '' },
-            { key: 'Proper road access availability', value: '' },
-            { key: 'Electric lines/Pole distance', value: '' },
-            { key: 'Transformers', value: '' },
-            { key: 'High tension line', value: '' },
-            { key: 'Schools, hospital, residential, etc.', value: '' },
-            { key: 'Mobile towers', value: '' },
-            { key: 'Railway track', value: '' },
-            { key: 'Water bodies', value: '' },
-            { key: 'Well', value: '' },
-            { key: 'Existing or under-construction building', value: '' },
-            { key: 'Tree cutting', value: '' },
-            { key: 'Site levels', value: '' }
-        ],
-        surveyReportNote: '',
-        includeSurveyReportNote: false,
-        conclusions: [
-            { value: 'SPT values indicate that the soil strata up to a termination depth is [VALUE].' },
-            { value: 'The [VALUE] present in the soil strata is found to be [VALUE] in nature.' },
-            { value: 'Ground water table [VALUE] at the time of investigation in the bore hole.' }
-        ],
-        depthOfFoundation: '',
-        recommendationTypes: {
-            rock: false,
-            soil: true
-        },
-        sitePhotos: [],
-        boreholeLogs: [
-            [{
-                depth: '',
-                natureOfSampling: '',
-                soilType: '',
-                waterTable: false,
-                spt1: '',
-                spt2: '',
-                spt3: '',
-                shearParameters: {
-                    cValue: '',
-                    phiValue: ''
-                },
-                coreLength: '',
-                coreRecovery: '',
-                rqd: '',
-                sbc: ''
-            }]
-        ],
-        labTestResults: [
-            [{
-                depth: '',
-                bulkDensity: '',
-                moistureContent: '',
-                grainSizeDistribution: {
-                    gravel: '',
-                    sand: '',
-                    siltAndClay: ''
-                },
-                atterbergLimits: {
-                    liquidLimit: '',
-                    plasticLimit: '',
-                    plasticityIndex: ''
-                },
-                specificGravity: '',
-                freeSwellIndex: ''
-            }]
-        ],
-        chemicalAnalysis: [
-            {
-                phValue: '',
-                sulphates: '',
-                chlorides: '',
-                additionalKeys: [
-                    { key: '', value: '' }
-                ]
-            }
-        ],
-        grainSizeAnalysis: [
-            [
-                {
-                    depth: '',
-                    sieve1: '',
-                    sieve2: '',
-                    sieve3: '',
-                    sieve4: '',
-                    sieve5: '',
-                    sieve6: '',
-                    sieve7: '',
-                    sieve8: '',
-                    sieve9: ''
-                }
-            ]
-        ],
-        sbcDetails: [
-            [
-                {
-                    depth: '',
-                    footingDimension: '',
-                    useForReport: false,
-                    sbcValue: ''
-                }
-            ]
-        ],
-        subSoilProfile: [
-            [
-                {
-                    depth: '',
-                    description: ''
-                }
-            ]
-        ],
 
-        directShearResults: [
-            [
-                {
-                    shearBoxSize: '',
-                    depthOfSample: '',
-                    cValue: '',
-                    phiValue: '',
-                    stressReadings: [
-                        { normalStress: '', shearStress: '' }
-                    ]
-                }
-            ]
-        ],
-        pointLoadStrength: [
-            [
-                {
+    // Get initial form data from localStorage or use defaults
+    const getInitialFormData = () => {
+        const STORAGE_KEY = 'newReportFormData';
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error('Failed to parse saved form data:', e);
+            }
+        }
+
+        // Return default form data
+        return {
+            projectType: '',
+            reportId: '',
+            projectDetails: 'GBT 40m',
+            client: '',
+            clientAddress: '',
+            latitude: '',
+            longitude: '',
+            siteId: '',
+            anchorId: '',
+            siteName: '',
+            siteAddress: '',
+            surveyDate: '',
+            groundWaterTable: '',
+            isCodes: [
+                { key: 'Natural water content', value: 'IS:2720 - (Part 2) - 1973' },
+                { key: 'Grain size analysis', value: 'IS:2720 - (Part 4) - 1985' },
+                { key: 'Atterberg Limits', value: 'IS:2720 - (Part 5) - 1985' },
+                { key: 'Field density', value: 'IS:2720 - (Part 10) - 1993' },
+                { key: 'Specific Gravity', value: 'IS:2720 - (Part 3) - 1980' },
+                { key: 'Standard penetration test (SPT)', value: 'IS:2131 - 1981' },
+                { key: 'Shear strength parameters', value: 'IS:2720 - (Part 13) - 1986' },
+                { key: 'Free Swell Index', value: 'IS:2720 - (Part 40) - 1977' },
+                { key: 'Chemical Analysis', value: 'IS:2720 - (Part 26) - 1987 & (Part 27) - 1977' },
+                { key: 'Foundation design on rock', value: 'IS:12070 - 1987' },
+                { key: 'Breaking Capacity of Shallow Foundation', value: 'IS:6403 - 1981' },
+                { key: 'Settlement of Foundation', value: 'IS:8009 - 1976' },
+                { key: 'Soil Classification', value: 'IS:1498 - 1970' },
+                { key: 'Point Load Index of Rock', value: 'IS:8764 - 1998' },
+                { key: 'Qualitative Classification System of Rock Mass', value: 'IS:13365 - (Part 1) - 1998' }
+            ],
+            surveyReport: [
+                { key: 'Weather condition', value: '' },
+                { key: 'Site Dimension', value: '' },
+                { key: 'Ground or seepage water', value: '' },
+                { key: 'Site to main road distance', value: '' },
+                { key: 'Terrain Details (Agriculture/Hilly/Plain)', value: '' },
+                { key: 'Proper road access availability', value: '' },
+                { key: 'Electric lines/Pole distance', value: '' },
+                { key: 'Transformers', value: '' },
+                { key: 'High tension line', value: '' },
+                { key: 'Schools, hospital, residential, etc.', value: '' },
+                { key: 'Mobile towers', value: '' },
+                { key: 'Railway track', value: '' },
+                { key: 'Water bodies', value: '' },
+                { key: 'Well', value: '' },
+                { key: 'Existing or under-construction building', value: '' },
+                { key: 'Tree cutting', value: '' },
+                { key: 'Site levels', value: '' }
+            ],
+            surveyReportNote: '',
+            includeSurveyReportNote: false,
+            conclusions: [
+                { value: 'SPT values indicate that the soil strata up to a termination depth is [VALUE].' },
+                { value: 'The [VALUE] present in the soil strata is found to be [VALUE] in nature.' },
+                { value: 'Ground water table [VALUE] at the time of investigation in the bore hole.' }
+            ],
+            depthOfFoundation: '',
+            recommendationTypes: {
+                rock: false,
+                soil: true
+            },
+            sitePhotos: [],
+            boreholeLogs: [
+                [{
                     depth: '',
-                    readings: [
-                        {
-                            loadAtFailure: '',
-                            d50: '',
-                            d: '',
-                            ucs: ''
-                        }
-                    ]
-                }
-            ]
-        ],
-        pointLoadStrengthLump: [
-            [
-                {
+                    natureOfSampling: '',
+                    soilType: '',
+                    waterTable: false,
+                    spt1: '',
+                    spt2: '',
+                    spt3: '',
+                    shearParameters: {
+                        cValue: '',
+                        phiValue: ''
+                    },
+                    coreLength: '',
+                    coreRecovery: '',
+                    rqd: '',
+                    sbc: ''
+                }]
+            ],
+            labTestResults: [
+                [{
                     depth: '',
-                    readings: [
-                        {
-                            loadAtFailure: '',
-                            d50: '',
-                            d: '',
-                            w: '',
-                            ucs: ''
-                        }
-                    ]
-                }
-            ]
-        ],
-        pointLoadStrengthLump: [
-            [
+                    bulkDensity: '',
+                    moistureContent: '',
+                    grainSizeDistribution: {
+                        gravel: '',
+                        sand: '',
+                        siltAndClay: ''
+                    },
+                    atterbergLimits: {
+                        liquidLimit: '',
+                        plasticLimit: '',
+                        plasticityIndex: ''
+                    },
+                    specificGravity: '',
+                    freeSwellIndex: ''
+                }]
+            ],
+            chemicalAnalysis: [
                 {
-                    depth: '',
-                    readings: [
-                        {
-                            loadAtFailure: '',
-                            d50: '',
-                            d: '',
-                            w: '',
-                            ucs: ''
-                        }
+                    phValue: '',
+                    sulphates: '',
+                    chlorides: '',
+                    additionalKeys: [
+                        { key: '', value: '' }
                     ]
                 }
-            ]
-        ],
-        foundationRockFormations: [
-            {
-                rows: [
+            ],
+            grainSizeAnalysis: [
+                [
                     {
-                        rock: '',
-                        strength: '',
-                        rqd: '',
-                        spacingDiscontinuity: '',
-                        conditionOfDiscontinuity: '',
-                        gwtCondition: '',
-                        discontinuityOrientation: '',
-                        rockGrade: '',
-                        inferredNetSbp: ''
+                        depth: '',
+                        sieve1: '',
+                        sieve2: '',
+                        sieve3: '',
+                        sieve4: '',
+                        sieve5: '',
+                        sieve6: '',
+                        sieve7: '',
+                        sieve8: '',
+                        sieve9: ''
                     }
                 ]
-            }
-        ],
-        recommendations: '',
-        reportCreatedOn: new Date().toISOString().split('T')[0]
-    });
+            ],
+            sbcDetails: [
+                [
+                    {
+                        depth: '',
+                        footingDimension: '',
+                        useForReport: false,
+                        sbcValue: ''
+                    }
+                ]
+            ],
+            subSoilProfile: [
+                [
+                    {
+                        depth: '',
+                        description: ''
+                    }
+                ]
+            ],
+
+            directShearResults: [
+                [
+                    {
+                        shearBoxSize: '',
+                        depthOfSample: '',
+                        cValue: '',
+                        phiValue: '',
+                        stressReadings: [
+                            { normalStress: '', shearStress: '' }
+                        ]
+                    }
+                ]
+            ],
+            pointLoadStrength: [
+                [
+                    {
+                        depth: '',
+                        readings: [
+                            {
+                                loadAtFailure: '',
+                                d50: '',
+                                d: '',
+                                ucs: ''
+                            }
+                        ]
+                    }
+                ]
+            ],
+            pointLoadStrengthLump: [
+                [
+                    {
+                        depth: '',
+                        readings: [
+                            {
+                                loadAtFailure: '',
+                                d50: '',
+                                d: '',
+                                w: '',
+                                ucs: ''
+                            }
+                        ]
+                    }
+                ]
+            ],
+            pointLoadStrengthLump: [
+                [
+                    {
+                        depth: '',
+                        readings: [
+                            {
+                                loadAtFailure: '',
+                                d50: '',
+                                d: '',
+                                w: '',
+                                ucs: ''
+                            }
+                        ]
+                    }
+                ]
+            ],
+            foundationRockFormations: [
+                {
+                    rows: [
+                        {
+                            rock: '',
+                            strength: '',
+                            rqd: '',
+                            spacingDiscontinuity: '',
+                            conditionOfDiscontinuity: '',
+                            gwtCondition: '',
+                            discontinuityOrientation: '',
+                            rockGrade: '',
+                            inferredNetSbp: ''
+                        }
+                    ]
+                }
+            ],
+            recommendations: '',
+            reportCreatedOn: new Date().toISOString().split('T')[0]
+        };
+    };
+
+    const [formData, setFormData] = useState(getInitialFormData);
     const [sitePhotoPreview, setSitePhotoPreview] = useState(null);
     const [activeTab, setActiveTab] = useState('basic');
     const [errors, setErrors] = useState({});
+
+    // Auto-save formData to localStorage whenever it changes
+    useEffect(() => {
+        const STORAGE_KEY = 'newReportFormData';
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+        } catch (e) {
+            console.error('Failed to save form data:', e);
+        }
+    }, [formData]);
+
+    // Clear form and localStorage
+    const clearForm = () => {
+        const STORAGE_KEY = 'newReportFormData';
+
+        if (window.confirm('Are you sure you want to clear all form data? This action cannot be undone.')) {
+            localStorage.removeItem(STORAGE_KEY);
+            setFormData(getInitialFormData());
+            setErrors({});
+            setActiveTab('basic');
+            toast({
+                title: "Form Cleared",
+                description: "All form data has been cleared successfully.",
+                className: "bg-blue-50 border-blue-200 text-blue-900",
+            });
+        }
+    };
+
 
     const validate = () => {
         const newErrors = {};
@@ -1334,6 +1380,16 @@ const NewReportPage = () => {
 
                             {/* Right side */}
                             <div className="flex items-center space-x-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={clearForm}
+                                    className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors"
+                                >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Clear Form
+                                </Button>
                                 <Button
                                     type="button"
                                     variant="outline"
