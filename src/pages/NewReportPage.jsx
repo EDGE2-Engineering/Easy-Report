@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -21,6 +21,7 @@ import { AlertCircle, ListTree, Save, Plus, Trash2, LandPlot, FileText, TestTube
 import { useToast } from '@/components/ui/use-toast';
 import ReportPreview from '@/components/ReportPreview';
 import reportTemplateHtml from '@/templates/report-template.html?raw'
+import { supabase } from '@/lib/customSupabaseClient';
 
 
 function fillTemplate(template, data) {
@@ -32,6 +33,47 @@ function fillTemplate(template, data) {
 const NewReportPage = () => {
     const { toast } = useToast();
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [clients, setClients] = useState([]);
+    const [filteredClients, setFilteredClients] = useState([]);
+    const [showClientSuggestions, setShowClientSuggestions] = useState(false);
+
+    useEffect(() => {
+        const fetchClients = async () => {
+            const { data, error } = await supabase
+                .from('clients')
+                .select('*')
+                .order('client_name');
+
+            if (!error && data) {
+                setClients(data);
+            }
+        };
+        fetchClients();
+    }, []);
+
+    const handleClientSearch = (e) => {
+        const value = e.target.value;
+        setFormData(prev => ({ ...prev, client: value }));
+
+        if (value.trim()) {
+            const filtered = clients.filter(c =>
+                c.client_name.toLowerCase().includes(value.toLowerCase())
+            );
+            setFilteredClients(filtered);
+            setShowClientSuggestions(true);
+        } else {
+            setShowClientSuggestions(false);
+        }
+    };
+
+    const selectClient = (client) => {
+        setFormData(prev => ({
+            ...prev,
+            client: client.client_name,
+            clientAddress: client.client_address || prev.clientAddress
+        }));
+        setShowClientSuggestions(false);
+    };
     const [formData, setFormData] = useState({
         projectType: '',
         reportId: '',
@@ -1481,23 +1523,46 @@ const NewReportPage = () => {
                                                 {errors.projectDetails && <p className="text-xs text-red-500 mt-1">{errors.projectDetails.message}</p>}
                                             </div>
 
-                                            <div className="space-y-2">
+                                            <div className="space-y-2 relative">
                                                 <Label htmlFor="client" className={errors.client ? "text-red-500" : ""}>Client</Label>
                                                 <Input
                                                     id="client"
                                                     name="client"
-                                                    placeholder="Enter client name here"
+                                                    placeholder="Search or enter client name"
                                                     value={formData.client}
                                                     onChange={(e) => {
-                                                        handleChange(e);
+                                                        handleClientSearch(e);
                                                         if (errors.client) setErrors(prev => {
                                                             const newErrors = { ...prev };
                                                             delete newErrors.client;
                                                             return newErrors;
                                                         });
                                                     }}
+                                                    onFocus={() => formData.client && setShowClientSuggestions(true)}
+                                                    onBlur={() => setTimeout(() => setShowClientSuggestions(false), 200)}
                                                     className={errors.client ? "border-red-500 focus:ring-red-500 focus-visible:ring-red-500" : ""}
                                                 />
+                                                {showClientSuggestions && filteredClients.length > 0 && (
+                                                    <div className="absolute z-10 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-auto mt-1">
+                                                        {filteredClients.map(client => (
+                                                            <div
+                                                                key={client.id}
+                                                                className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                                                onClick={() => {
+                                                                    selectClient(client);
+                                                                    if (errors.client) setErrors(prev => {
+                                                                        const newErrors = { ...prev };
+                                                                        delete newErrors.client;
+                                                                        return newErrors;
+                                                                    });
+                                                                }}
+                                                            >
+                                                                <div className="font-medium">{client.client_name}</div>
+                                                                <div className="text-xs text-gray-500 truncate">{client.client_address}</div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                                 {errors.client && <p className="text-xs text-red-500 mt-1">{errors.client.message}</p>}
                                             </div>
 

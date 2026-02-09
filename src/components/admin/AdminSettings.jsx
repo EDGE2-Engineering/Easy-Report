@@ -9,6 +9,7 @@ import { UserCog, Lock, Save, Loader2, ShieldCheck, Eye, EyeOff, FileText } from
 import { auth } from '@/lib/auth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.jsx';
 import AdminUserManager from './AdminUserManager.jsx';
+import AdminClientsManager from './AdminClientsManager.jsx';
 
 const PasswordField = ({ id, label, value, onChange, show, setShow, placeholder, icon: Icon, required = false }) => (
     <div className="space-y-2">
@@ -115,7 +116,7 @@ const AdminSettings = () => {
 
     const renderSecuritySection = () => (
         <Card>
-         
+
         </Card>
     );
 
@@ -133,10 +134,14 @@ const AdminSettings = () => {
 
             {userRole === 'admin' ? (
                 <Tabs defaultValue="security" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-8">
+                    <TabsList className="grid w-full grid-cols-3 mb-8">
                         <TabsTrigger value="users" className="flex items-center gap-2">
                             <UserCog className="w-4 h-4" />
                             Users
+                        </TabsTrigger>
+                        <TabsTrigger value="clients" className="flex items-center gap-2">
+                            <UserCog className="w-4 h-4" />
+                            Clients
                         </TabsTrigger>
                         <TabsTrigger value="security" className="flex items-center gap-2">
                             <FileText className="w-4 h-4" />
@@ -148,6 +153,9 @@ const AdminSettings = () => {
                     </TabsContent>
                     <TabsContent value="users" className="mt-0">
                         <AdminUserManager />
+                    </TabsContent>
+                    <TabsContent value="clients" className="mt-0">
+                        <AdminClientsManager />
                     </TabsContent>
                 </Tabs>
             ) : (

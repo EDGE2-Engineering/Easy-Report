@@ -40,3 +40,16 @@ insert into public.app_users (username, password, full_name, role, is_active) va
 ('user', 'user123', 'Standard User', 'standard', true),
 ('test', 'test123', 'Test User', 'standard', false)
 on conflict (username) do nothing;
+
+-- -----------------------------------------------------------------------------
+-- 2. Table: clients
+-- -----------------------------------------------------------------------------
+create table if not exists public.clients (
+  id text primary key,
+  client_name text not null,
+  client_address text default '',
+  email text default '',
+  phone text default '',
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);

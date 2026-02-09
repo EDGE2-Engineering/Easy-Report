@@ -52,23 +52,20 @@ const ReportPreview = ({ formData, onClose }) => {
 
                         {/* Page 1: Front Sheet */}
                         <Page>
-                            <div className="flex flex-col items-center h-full">
-                                <div className="text-center mt-12 mb-16">
-                                    <h1 className="text-[22pt] text-[#29299a] font-bold leading-tight mb-4 uppercase">
+                            <div className="flex flex-col items-center h-full text-center font-sans" style={{ fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}>
+                                <div className="mt-10 mb-8">
+                                    <h1 className="text-[20px] text-[#29299a] leading-tight mb-4">
                                         Geo-Technical Investigation Report for <br />
-                                        Construction of {formData.projectDetails || '________________'} ({formData.projectType || '________________'})
+                                        Construction of <span className="font-bold">{formData.projectType || '________________'}</span> at <br />
+                                        <span className="text-[15px]">{formData.siteAddress || '________________'}</span>
                                     </h1>
-                                    <p className="text-[#29299a] text-[16pt] font-semibold italic">
-                                        at {formData.siteAddress || '________________'}
-                                    </p>
-                                </div>
 
-                                <div className="text-center mb-12">
-                                    <p className="text-[14pt] text-gray-600 mb-6 italic">Submitted to</p>
-                                    <h2 className="text-[18pt] font-bold text-[#29299a] uppercase tracking-wide">
+                                    <p className="text-[18px] text-black mt-8 mb-4">Submitted to</p>
+
+                                    <h2 className="text-[20px] font-bold text-[#29299a]">
                                         M/s {formData.client || '________________'}
                                     </h2>
-                                    <p className="text-[#29299a] text-[12pt] mt-2">{formData.clientAddress || '________________'}</p>
+                                    <p className="text-[#29299a] text-[11pt] mt-1">{formData.clientAddress || '________________'}</p>
                                 </div>
 
                                 {formData.clientLogo && (
@@ -123,34 +120,36 @@ const ReportPreview = ({ formData, onClose }) => {
                                 </div>
 
                                 {/* Footer Section */}
-                                <div className="w-full mt-auto text-center">
-                                    <div className="flex flex-col items-center">
-                                        <p className="text-[12pt] font-bold text-gray-800 mb-4">Report Prepared By</p>
-                                        <img src={logo} alt="EDGE2 Logo" className="w-[20mm] object-contain mb-3" />
-                                        <h3 className="text-[14pt] font-extrabold text-[#29299a] uppercase">Edge2 Engineering Solutions India Pvt. Ltd.</h3>
-                                        <p className="text-[8pt] text-gray-700 mt-2 font-medium">
+                                <div className="w-full mt-auto">
+                                    <div className="flex flex-col items-center mb-2">
+                                        <p className="text-[15px] font-bold text-gray-800 mb-2">Report Prepared By</p>
+                                        <img src={logo} alt="EDGE2 Logo" className="w-[10mm] object-contain mb-1" />
+                                        <h3 className="text-[11pt] font-bold text-black">EDGE2 Engineering Solutions India Pvt. Ltd.</h3>
+                                        <p className="text-[10pt] text-black mt-1">
                                             Geo-technical Investigation • Material Testing • Structural Health & Stability <br />
                                             NDT • Restoration & Rehabilitation • PMC & QA
                                         </p>
-                                        <div className="flex space-x-4 text-[8pt] text-gray-500 mt-2 justify-center">
-                                            <span>www.edge2.in</span>
-                                            <span>|</span>
-                                            <span>📞 +91 98809 73810</span>
-                                            <span>|</span>
-                                            <span>info@edge2.in</span>
+                                        <div className="text-[9pt] text-black mt-1 space-y-0.5">
+                                            <p>Website: www.edge2.in</p>
+                                            <p>📞 +91 98809 73810 / 080 5005 6086</p>
+                                            <p>Email: info@edge2.in | reports@edge2.in</p>
+                                            <p>PAN: AACCE1702A | GSTIN: 29AACCE1702A1ZD</p>
                                         </div>
                                     </div>
 
-                                    <div className="mt-8 pt-4 border-t border-black/30 text-[8pt] text-left grid grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="text-[#800000] font-bold uppercase mb-1">Registered Office & Lab:</p>
-                                            <p className="leading-tight text-gray-600">
-                                                Shivaganga Arcade, B35/130, 6th Cross, 6th Block, <br />
-                                                Vishweshwaraiah Layout, Ullal Upanagar, Bengaluru - 560056
-                                            </p>
+                                    <hr className="border-black/50 my-2" />
+
+                                    <div className="grid grid-cols-[3fr_1fr] gap-4 text-left">
+                                        <div className="text-[13px]">
+                                            <p><span className="text-[#800000]">Registered Office and Laboratory:</span><br />
+                                                Edge2 Engineering Solutions India Pvt. Ltd.<br />
+                                                ISO 9001:2015 Certified<br />
+                                                (Certificate No: IN12701A)<br />
+                                                Shivaganga Arcade, B35/130, 6th Cross, 6th Block, Vishweshwaraiah Layout, Ullal Upanagar, Bengaluru, Karnataka - 560056</p>
                                         </div>
-                                        <div className="flex items-center justify-end font-bold italic text-blue-900 border-l border-black/20 pl-4 text-right">
-                                            ISO 9001:2015 Certified <br /> (Certificate No: IN12701A)
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <img src="/iso-9001-2015.png" alt="ISO 9001:2015" className="w-[15mm] object-contain" />
+                                            <img src="/iso-45001-2018.png" alt="ISO 45001:2018" className="w-[15mm] object-contain" />
                                         </div>
                                     </div>
                                 </div>
