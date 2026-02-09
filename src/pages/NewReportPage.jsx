@@ -257,6 +257,30 @@ const NewReportPage = () => {
         reportCreatedOn: new Date().toISOString().split('T')[0]
     });
     const [sitePhotoPreview, setSitePhotoPreview] = useState(null);
+    const [activeTab, setActiveTab] = useState('basic');
+    const [errors, setErrors] = useState({});
+
+    const validate = () => {
+        const newErrors = {};
+
+        // Basic Info Tab
+        if (!formData.projectType) newErrors.projectType = { message: 'Project Type is required', tab: 'basic' };
+        if (!formData.reportId) newErrors.reportId = { message: 'Report ID is required', tab: 'basic' };
+        if (!formData.projectDetails) newErrors.projectDetails = { message: 'Project Details are required', tab: 'basic' };
+        if (!formData.client) newErrors.client = { message: 'Client is required', tab: 'basic' };
+        if (!formData.siteId) newErrors.siteId = { message: 'Site ID is required', tab: 'basic' };
+        if (!formData.siteName) newErrors.siteName = { message: 'Site Name is required', tab: 'basic' };
+        if (!formData.surveyDate) newErrors.surveyDate = { message: 'Survey Date is required', tab: 'basic' };
+
+        // Survey Tab
+        if (!formData.depthOfFoundation) newErrors.depthOfFoundation = { message: 'Depth of Foundation is required', tab: 'survey' };
+        if (!formData.recommendationTypes.rock && !formData.recommendationTypes.soil) {
+            newErrors.recommendationTypes = { message: 'At least one Recommendation Type is required', tab: 'survey' };
+        }
+
+        setErrors(newErrors);
+        return newErrors;
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -1171,6 +1195,34 @@ const NewReportPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const validationErrors = validate();
+        const errorKeys = Object.keys(validationErrors);
+
+        if (errorKeys.length > 0) {
+            const firstErrorKey = errorKeys[0];
+            const firstError = validationErrors[firstErrorKey];
+
+            setActiveTab(firstError.tab);
+
+            toast({
+                title: "Validation Error",
+                description: `Please fill in all mandatory fields. Missing: ${firstError.message}`,
+                variant: "destructive",
+            });
+
+            // Use timeout to allow tab to switch and element to be available in DOM
+            setTimeout(() => {
+                const element = document.getElementById(firstErrorKey);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    element.focus();
+                }
+            }, 100);
+
+            return;
+        }
+
         // console.log('Form Data JSON:', JSON.stringify(formData, null, 2));
 
         // Simulating API call/submission
@@ -1179,38 +1231,6 @@ const NewReportPage = () => {
             description: "The new report has been successfully generated.",
             className: "bg-green-50 border-green-200 text-green-900",
         });
-
-
-
-        // Open sample report in a new tab
-        // window.open('/sample-report.html', '_blank');
-
-        let htmlContent;
-
-        // fetch('/report-template.html')
-        //     .then(response => {
-        //         if (!response.ok) {
-        //             throw new Error('Failed to load HTML file');
-        //         }
-        //         return response.text();
-        //     })
-        //     .then(html => {
-        //         htmlContent = html;
-        //         // console.log(htmlContent);
-
-        //         const data = {
-        //             reportRequestJson: JSON.stringify(formData)
-        //         };
-        //         const filledHtml = fillTemplate(htmlContent, data);
-
-        //         // console.log(filledHtml);
-        //         console.log(formData);
-
-        //         const blob = new Blob([filledHtml], { type: 'text/html' });
-        //         const url = URL.createObjectURL(blob);
-        //         window.open(url, '_blank');
-        //     })
-        //     .catch(err => console.error(err));
 
         htmlContent = reportTemplateHtml;
         // console.log(htmlContent);
@@ -1271,47 +1291,95 @@ const NewReportPage = () => {
 
                     <CardContent className="p-2">
                         <form id="report-form" onSubmit={handleSubmit} className="space-y-8">
-                            <Tabs defaultValue="basic" className="w-full">
+                            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                                 <TabsList className="grid w-full grid-cols-8 mb-8">
-                                    <TabsTrigger value="basic" className="flex items-center gap-1">
+                                    <TabsTrigger value="basic" className="flex items-center gap-1 relative">
                                         <MapPin className="w-4 h-4" />
                                         <span className="hidden sm:inline">Basic Info</span>
                                         <span className="sm:hidden">Basic</span>
+                                        {Object.values(errors).some(e => e.tab === 'basic') && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            </span>
+                                        )}
                                     </TabsTrigger>
-                                    <TabsTrigger value="survey" className="flex items-center gap-1">
+                                    <TabsTrigger value="survey" className="flex items-center gap-1 relative">
                                         <ClipboardList className="w-4 h-4" />
                                         <span className="hidden sm:inline">Survey</span>
                                         <span className="sm:hidden">Survey</span>
+                                        {Object.values(errors).some(e => e.tab === 'survey') && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            </span>
+                                        )}
                                     </TabsTrigger>
-                                    <TabsTrigger value="borehole" className="flex items-center gap-1">
+                                    <TabsTrigger value="borehole" className="flex items-center gap-1 relative">
                                         <ListTree className="w-4 h-4" />
                                         <span className="hidden sm:inline">Borehole Logs</span>
                                         <span className="sm:hidden">Bore</span>
+                                        {Object.values(errors).some(e => e.tab === 'borehole') && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            </span>
+                                        )}
                                     </TabsTrigger>
-                                    <TabsTrigger value="lab" className="flex items-center gap-1">
+                                    <TabsTrigger value="lab" className="flex items-center gap-1 relative">
                                         <TestTube className="w-4 h-4" />
                                         <span className="hidden sm:inline">Lab Tests</span>
                                         <span className="sm:hidden">Lab</span>
+                                        {Object.values(errors).some(e => e.tab === 'lab') && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            </span>
+                                        )}
                                     </TabsTrigger>
-                                    <TabsTrigger value="pointload" className="flex items-center gap-1">
+                                    <TabsTrigger value="pointload" className="flex items-center gap-1 relative">
                                         <ArrowDownFromLine className="w-4 h-4" />
                                         <span className="hidden sm:inline">Point Load</span>
                                         <span className="sm:hidden">Point</span>
+                                        {Object.values(errors).some(e => e.tab === 'pointload') && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            </span>
+                                        )}
                                     </TabsTrigger>
-                                    <TabsTrigger value="sbc" className="flex items-center gap-1">
+                                    <TabsTrigger value="sbc" className="flex items-center gap-1 relative">
                                         <LandPlot className="w-4 h-4" />
                                         <span className="hidden sm:inline">SBC Details</span>
                                         <span className="sm:hidden">SBC</span>
+                                        {Object.values(errors).some(e => e.tab === 'sbc') && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            </span>
+                                        )}
                                     </TabsTrigger>
-                                    <TabsTrigger value="rock" className="flex items-center gap-1">
+                                    <TabsTrigger value="rock" className="flex items-center gap-1 relative">
                                         <Layers className="w-4 h-4" />
                                         <span className="hidden sm:inline">Foundation </span>
                                         <span className="sm:hidden">Rock</span>
+                                        {Object.values(errors).some(e => e.tab === 'rock') && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            </span>
+                                        )}
                                     </TabsTrigger>
-                                    <TabsTrigger value="recommendations" className="flex items-center gap-1">
+                                    <TabsTrigger value="recommendations" className="flex items-center gap-1 relative">
                                         <Lightbulb className="w-4 h-4" />
                                         <span className="hidden sm:inline">Recommendation</span>
                                         <span className="sm:hidden">Rec</span>
+                                        {Object.values(errors).some(e => e.tab === 'recommendations') && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            </span>
+                                        )}
                                     </TabsTrigger>
                                 </TabsList>
 
@@ -1322,12 +1390,19 @@ const NewReportPage = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="projectType">Project Type</Label>
+                                                <Label htmlFor="projectType" className={errors.projectType ? "text-red-500" : ""}>Project Type</Label>
                                                 <Select
                                                     value={formData.projectType}
-                                                    onValueChange={(value) => handleChange({ target: { name: 'projectType', value } })}
+                                                    onValueChange={(value) => {
+                                                        handleChange({ target: { name: 'projectType', value } });
+                                                        if (errors.projectType) setErrors(prev => {
+                                                            const newErrors = { ...prev };
+                                                            delete newErrors.projectType;
+                                                            return newErrors;
+                                                        });
+                                                    }}
                                                 >
-                                                    <SelectTrigger id="projectType">
+                                                    <SelectTrigger id="projectType" className={errors.projectType ? "border-red-500 focus:ring-red-500 focus-visible:ring-red-500" : ""}>
                                                         <SelectValue placeholder="Select Project Type" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -1335,41 +1410,69 @@ const NewReportPage = () => {
                                                         <SelectItem value="others">Others</SelectItem>
                                                     </SelectContent>
                                                 </Select>
+                                                {errors.projectType && <p className="text-xs text-red-500 mt-1">{errors.projectType.message}</p>}
                                             </div>
 
 
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="reportId">Report ID</Label>
+                                                <Label htmlFor="reportId" className={errors.reportId ? "text-red-500" : ""}>Report ID</Label>
                                                 <Input
                                                     id="reportId"
                                                     name="reportId"
                                                     placeholder="e.g. RPT-001"
                                                     value={formData.reportId}
-                                                    onChange={handleChange}
+                                                    onChange={(e) => {
+                                                        handleChange(e);
+                                                        if (errors.reportId) setErrors(prev => {
+                                                            const newErrors = { ...prev };
+                                                            delete newErrors.reportId;
+                                                            return newErrors;
+                                                        });
+                                                    }}
+                                                    className={errors.reportId ? "border-red-500 focus:ring-red-500 focus-visible:ring-red-500" : ""}
                                                 />
+                                                {errors.reportId && <p className="text-xs text-red-500 mt-1">{errors.reportId.message}</p>}
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="projectDetails">Project Details</Label>
+                                                <Label htmlFor="projectDetails" className={errors.projectDetails ? "text-red-500" : ""}>Project Details</Label>
                                                 <Input
                                                     id="projectDetails"
                                                     name="projectDetails"
                                                     placeholder="e.g. GBT 40m"
                                                     value={formData.projectDetails}
-                                                    onChange={handleChange}
+                                                    onChange={(e) => {
+                                                        handleChange(e);
+                                                        if (errors.projectDetails) setErrors(prev => {
+                                                            const newErrors = { ...prev };
+                                                            delete newErrors.projectDetails;
+                                                            return newErrors;
+                                                        });
+                                                    }}
+                                                    className={errors.projectDetails ? "border-red-500 focus:ring-red-500 focus-visible:ring-red-500" : ""}
                                                 />
+                                                {errors.projectDetails && <p className="text-xs text-red-500 mt-1">{errors.projectDetails.message}</p>}
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="client">Client</Label>
+                                                <Label htmlFor="client" className={errors.client ? "text-red-500" : ""}>Client</Label>
                                                 <Input
                                                     id="client"
                                                     name="client"
                                                     placeholder="Enter client name here"
                                                     value={formData.client}
-                                                    onChange={handleChange}
+                                                    onChange={(e) => {
+                                                        handleChange(e);
+                                                        if (errors.client) setErrors(prev => {
+                                                            const newErrors = { ...prev };
+                                                            delete newErrors.client;
+                                                            return newErrors;
+                                                        });
+                                                    }}
+                                                    className={errors.client ? "border-red-500 focus:ring-red-500 focus-visible:ring-red-500" : ""}
                                                 />
+                                                {errors.client && <p className="text-xs text-red-500 mt-1">{errors.client.message}</p>}
                                             </div>
 
                                             <div className="space-y-2 md:col-span-2">
@@ -1406,15 +1509,24 @@ const NewReportPage = () => {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="siteId">Site ID</Label>
+                                                <Label htmlFor="siteId" className={errors.siteId ? "text-red-500" : ""}>Site ID</Label>
                                                 <Input
                                                     id="siteId"
                                                     name="siteId"
                                                     placeholder="Enter site ID here"
                                                     value={formData.siteId}
-                                                    onChange={handleChange}
+                                                    onChange={(e) => {
+                                                        handleChange(e);
+                                                        if (errors.siteId) setErrors(prev => {
+                                                            const newErrors = { ...prev };
+                                                            delete newErrors.siteId;
+                                                            return newErrors;
+                                                        });
+                                                    }}
+                                                    className={errors.siteId ? "border-red-500 focus:ring-red-500 focus-visible:ring-red-500" : ""}
                                                     required
                                                 />
+                                                {errors.siteId && <p className="text-xs text-red-500 mt-1">{errors.siteId.message}</p>}
                                             </div>
 
                                             <div className="space-y-2">
@@ -1429,27 +1541,45 @@ const NewReportPage = () => {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="siteName">Site Name</Label>
+                                                <Label htmlFor="siteName" className={errors.siteName ? "text-red-500" : ""}>Site Name</Label>
                                                 <Input
                                                     id="siteName"
                                                     name="siteName"
                                                     placeholder="Enter site name here"
                                                     value={formData.siteName}
-                                                    onChange={handleChange}
+                                                    onChange={(e) => {
+                                                        handleChange(e);
+                                                        if (errors.siteName) setErrors(prev => {
+                                                            const newErrors = { ...prev };
+                                                            delete newErrors.siteName;
+                                                            return newErrors;
+                                                        });
+                                                    }}
+                                                    className={errors.siteName ? "border-red-500 focus:ring-red-500 focus-visible:ring-red-500" : ""}
                                                     required
                                                 />
+                                                {errors.siteName && <p className="text-xs text-red-500 mt-1">{errors.siteName.message}</p>}
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="surveyDate">Survey Date</Label>
+                                                <Label htmlFor="surveyDate" className={errors.surveyDate ? "text-red-500" : ""}>Survey Date</Label>
                                                 <Input
                                                     id="surveyDate"
                                                     name="surveyDate"
                                                     type="date"
                                                     value={formData.surveyDate}
-                                                    onChange={handleChange}
+                                                    onChange={(e) => {
+                                                        handleChange(e);
+                                                        if (errors.surveyDate) setErrors(prev => {
+                                                            const newErrors = { ...prev };
+                                                            delete newErrors.surveyDate;
+                                                            return newErrors;
+                                                        });
+                                                    }}
+                                                    className={errors.surveyDate ? "border-red-500 focus:ring-red-500 focus-visible:ring-red-500" : ""}
                                                     required
                                                 />
+                                                {errors.surveyDate && <p className="text-xs text-red-500 mt-1">{errors.surveyDate.message}</p>}
                                             </div>
 
                                             <div className="space-y-2 md:col-span-2">
@@ -1680,30 +1810,46 @@ const NewReportPage = () => {
                                         <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100"> Depth of Foundation</h3>
                                         <div className="space-y-2">
                                             <Textarea
+                                                id="depthOfFoundation"
                                                 placeholder="The foundation depth for the proposed structure shall be a minimum depth of [VALUE]m from the existing ground level."
                                                 value={formData.depthOfFoundation}
-                                                onChange={(e) => handleChange(e)}
+                                                onChange={(e) => {
+                                                    handleChange(e);
+                                                    if (errors.depthOfFoundation) setErrors(prev => {
+                                                        const newErrors = { ...prev };
+                                                        delete newErrors.depthOfFoundation;
+                                                        return newErrors;
+                                                    });
+                                                }}
                                                 name="depthOfFoundation"
-                                                className="min-h-[60px] bg-white resize-y"
+                                                className={`min-h-[60px] bg-white resize-y ${errors.depthOfFoundation ? "border-red-500 focus:ring-red-500 focus-visible:ring-red-500" : ""}`}
                                             />
+                                            {errors.depthOfFoundation && <p className="text-xs text-red-500 mt-1">{errors.depthOfFoundation.message}</p>}
                                         </div>
                                     </div>
 
                                     {/* Section 5: Recommendation Type For SBC */}
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-100"> Recommendation Type/s For SBC</h3>
+                                    <div id="recommendationTypes">
+                                        <h3 className={`text-lg font-semibold mb-4 pb-2 border-b border-gray-100 ${errors.recommendationTypes ? "text-red-500 border-red-500" : "text-gray-900"}`}> Recommendation Type/s For SBC</h3>
                                         <div className="flex items-center space-x-8 pt-2">
                                             <div className="flex items-center space-x-2">
                                                 <Checkbox
                                                     id="rec-rock"
                                                     checked={formData.recommendationTypes.rock}
-                                                    onCheckedChange={(checked) => setFormData(prev => ({
-                                                        ...prev,
-                                                        recommendationTypes: {
-                                                            ...prev.recommendationTypes,
-                                                            rock: checked
-                                                        }
-                                                    }))}
+                                                    onCheckedChange={(checked) => {
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            recommendationTypes: {
+                                                                ...prev.recommendationTypes,
+                                                                rock: checked
+                                                            }
+                                                        }));
+                                                        if (errors.recommendationTypes) setErrors(prev => {
+                                                            const newErrors = { ...prev };
+                                                            delete newErrors.recommendationTypes;
+                                                            return newErrors;
+                                                        });
+                                                    }}
                                                 />
                                                 <Label htmlFor="rec-rock" className="cursor-pointer">Rock</Label>
                                             </div>
@@ -1711,17 +1857,25 @@ const NewReportPage = () => {
                                                 <Checkbox
                                                     id="rec-soil"
                                                     checked={formData.recommendationTypes.soil}
-                                                    onCheckedChange={(checked) => setFormData(prev => ({
-                                                        ...prev,
-                                                        recommendationTypes: {
-                                                            ...prev.recommendationTypes,
-                                                            soil: checked
-                                                        }
-                                                    }))}
+                                                    onCheckedChange={(checked) => {
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            recommendationTypes: {
+                                                                ...prev.recommendationTypes,
+                                                                soil: checked
+                                                            }
+                                                        }));
+                                                        if (errors.recommendationTypes) setErrors(prev => {
+                                                            const newErrors = { ...prev };
+                                                            delete newErrors.recommendationTypes;
+                                                            return newErrors;
+                                                        });
+                                                    }}
                                                 />
                                                 <Label htmlFor="rec-soil" className="cursor-pointer">Soil</Label>
                                             </div>
                                         </div>
+                                        {errors.recommendationTypes && <p className="text-xs text-red-500 mt-2">{errors.recommendationTypes.message}</p>}
                                     </div>
 
                                     {/* Section 7: Site Photos */}
