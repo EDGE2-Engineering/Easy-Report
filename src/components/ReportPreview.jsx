@@ -20,15 +20,15 @@ const Page = ({ children, reportId, pageNumber, totalPages }) => (
         <div
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
             style={{
-                transform: 'rotate(-60deg)',
+                transform: 'rotate(-55deg)',
                 zIndex: 0
             }}
         >
             <span
                 style={{
-                    fontSize: '41pt',
+                    fontSize: '42pt',
                     fontWeight: 700,
-                    color: 'rgba(0,0,0,0.03)',
+                    color: 'rgba(0,0,0,0.02)',
                     whiteSpace: 'nowrap'
                 }}
             >
@@ -81,13 +81,17 @@ const ReportPreview = ({ formData, onClose }) => {
     // Calculate total pages dynamically
     const numBoreholes = formData.boreholeLogs?.length || 0;
     const numLabTestPages = formData.labTestResults?.length || 0;
+    const numDirectShearPages = formData.directShearResults?.length || 0;
     const numGrainSizePages = formData.grainSizeAnalysis?.length || 0;
     const numSBCPages = formData.sbcDetails?.length || 0;
-    const numChemicalPages = formData.chemicalAnalysis?.length > 0 ? 1 : 0;
+    const numPointLoadPages = formData.pointLoadStrength?.length || 0;
+    const numFoundationRockPages = (formData.foundationRockFormations && formData.foundationRockFormations.length > 0) ? 1 : 0;
     const numPhotoPages = formData.sitePhotos?.length > 0 ? 1 : 0;
 
-    // 3 static pages + dynamic pages
-    const totalPages = 3 + numBoreholes + numLabTestPages + numGrainSizePages + numSBCPages + numChemicalPages + numPhotoPages;
+    // 7 static pages (Front, TOC, Intro, Field/Lab, Sampling, TODO, Recs)
+    const staticPages = 7;
+
+    const totalPages = staticPages + numBoreholes + numLabTestPages + numDirectShearPages + numGrainSizePages + numSBCPages + numPointLoadPages + numFoundationRockPages + numPhotoPages;
 
     // Page counter to track current page number
     let currentPage = 0;
@@ -323,13 +327,13 @@ const ReportPreview = ({ formData, onClose }) => {
                                 <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
                                     <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">3.2.1</span> FIELD INVESTIGATIONS
                                 </h2>
-                                    <ul className="list-disc ml-8 text-[10pt] space-y-2">
-                                        <li>Boring 01 No of 100/150mm dia Boreholes in all kinds of soil up to 10 m depth or refusal strata (N>100 blows for 30 cm penetrations) whichever encounters early.</li>
-                                        <li>Conducting field-tests such as Standard Penetration Tests as per IS 2131-1981.</li>
-                                        <li>Collecting disturbed and undisturbed soil samples.</li>
-                                        <li>To study and record the standing Ground Water Table Level.</li>
-                                        <li>To ascertain the sub-soil strata and ground topography.</li>
-                                    </ul>
+                                <ul className="list-disc ml-8 text-[10pt] space-y-2">
+                                    <li>Boring 01 No of 100/150mm dia Boreholes in all kinds of soil up to 10 m depth or refusal strata (N>100 blows for 30 cm penetrations) whichever encounters early.</li>
+                                    <li>Conducting field-tests such as Standard Penetration Tests as per IS 2131-1981.</li>
+                                    <li>Collecting disturbed and undisturbed soil samples.</li>
+                                    <li>To study and record the standing Ground Water Table Level.</li>
+                                    <li>To ascertain the sub-soil strata and ground topography.</li>
+                                </ul>
                             </section>
 
                             {/* <section className="mb-8">
@@ -375,7 +379,7 @@ const ReportPreview = ({ formData, onClose }) => {
                                     <li>Direct Shear Test as per IS 2720 (Part 13) - 1986</li>
                                     <li>Chemical Analysis</li>
                                 </ul>
-                                 <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
                                     <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">3.3</span> REPORTING SPECIFICATIONS
                                 </h2>
                                 <p className="text-[10pt] mb-4">
@@ -447,7 +451,7 @@ const ReportPreview = ({ formData, onClose }) => {
                             <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
                                 <span className="bg-gray-200 text-black px-2 mr-3 uppercase "> Table 4.3 </span> Details of Sampling in Boreholes
                             </h2>
-                            <p className="text-[10pt] mb-4">Disturbed sample and Undisturbed samples were collected at Boreholes is as follows:</p>  
+                            <p className="text-[10pt] mb-4">Disturbed sample and Undisturbed samples were collected at Boreholes is as follows:</p>
                             <table className="w-full border-collapse border border-black text-[10pt] text-center">
                                 <thead>
                                     <tr className="bg-gray-100">
@@ -497,8 +501,195 @@ const ReportPreview = ({ formData, onClose }) => {
                         </Page>
 
                         <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
-                            TODO FROM HERE
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">5.2</span> STANDARD PENETRATION NUMBER
+                            </h2>
+                            <p className="text-[10pt] mb-4">The Standard Penetration Tests were conducted at various depths in boreholes to determine penetration resistance as per IS 2131-1981. The no. of blows were recorded at every 15 cm penetration up to 45 cm penetrations. The number of blows required to drive the sampler for 30cms beyond seating drive is termed as penetration resistance. Refusal is said to be reached when the sampler penetrates less than 30cm under >100 blows.<br /><br />The observed ‘N’ values at a borehole location is indicated on the borehole log come sub-soil profiles.</p>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-gray-200 text-black px-2 mr-3 uppercase "> Table 5.1 </span> Details of SPT Test Results conducted in Boreholes
+                            </h2>
+                            {formData.boreholeLogs?.map((bh, bhIndex) => {
+                                const logsWithSPT = bh.filter(log => log.spt1 || log.spt2 || log.spt3);
+                                if (logsWithSPT.length === 0) return null;
+
+                                return (
+                                    <table
+                                        key={bhIndex}
+                                        className="w-full border-collapse border border-black text-[8pt] text-center mb-4"
+                                    >
+                                        <thead>
+                                            <tr className="bg-gray-200">
+                                                <th colSpan={5} className="border border-black p-1">
+                                                    SPT Value - BH {bhIndex + 1}
+                                                </th>
+                                            </tr>
+                                            <tr className="bg-gray-200">
+                                                <th className="border border-black p-1 uppercase">Depth (m)</th>
+                                                <th className="border border-black p-1 uppercase">0.15m</th>
+                                                <th className="border border-black p-1 uppercase">0.30m</th>
+                                                <th className="border border-black p-1 uppercase">0.45m</th>
+                                                <th className="border border-black p-1 uppercase">N-value</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {logsWithSPT.map((log, logIndex) => {
+                                                const spt2 = parseInt(log.spt2) || 0;
+                                                const spt3 = parseInt(log.spt3) || 0;
+                                                const nValue = spt2 + spt3;
+
+                                                return (
+                                                    <tr key={logIndex}>
+                                                        <td className="border border-black p-1">{log.depth}</td>
+                                                        <td className="border border-black p-1">{log.spt1}</td>
+                                                        <td className="border border-black p-1">{log.spt2}</td>
+                                                        <td className="border border-black p-1">{log.spt3}</td>
+                                                        <td className="border border-black p-1">
+                                                            {nValue || '-'}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                );
+                            })}
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">5.3</span> Atterberg Limits
+                            </h2>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-gray-200 text-black px-2 mr-3 uppercase "> Table 5.2 </span> Atterberg Limits Results conducted in Boreholes
+                            </h2>
+                            {formData.labTestResults?.map((bh, bhIndex) => {
+                                const logsWithAL = bh.filter(log =>
+                                    log.atterbergLimits?.liquidLimit ||
+                                    log.atterbergLimits?.plasticLimit ||
+                                    log.atterbergLimits?.plasticityIndex
+                                );
+                                if (logsWithAL.length === 0) return null;
+
+                                return (
+                                    <table
+                                        key={bhIndex}
+                                        className="w-full border-collapse border border-black text-[8pt] text-center mb-4"
+                                    >
+                                        <thead>
+                                            <tr className="bg-gray-200">
+                                                <th colSpan={4} className="border border-black p-1">
+                                                    Atterberg Limits Results - BH {bhIndex + 1}
+                                                </th>
+                                            </tr>
+                                            <tr className="bg-gray-200">
+                                                <th className="border border-black p-1 uppercase">Depth (m)</th>
+                                                <th className="border border-black p-1 uppercase">Liquid Limit %</th>
+                                                <th className="border border-black p-1 uppercase">Plastic Limit %</th>
+                                                <th className="border border-black p-1 uppercase">Plasticity Index</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {logsWithAL.map((log, logIndex) => {
+                                                return (
+                                                    <tr key={logIndex}>
+                                                        <td className="border border-black p-1">{log.depth}</td>
+                                                        <td className="border border-black p-1">{log.atterbergLimits?.liquidLimit || '-'}</td>
+                                                        <td className="border border-black p-1">{log.atterbergLimits?.plasticLimit || '-'}</td>
+                                                        <td className="border border-black p-1">{log.atterbergLimits?.plasticityIndex || '-'}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                );
+                            })}
+
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">5.4</span> Specific Gravity
+                            </h2>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-gray-200 text-black px-2 mr-3 uppercase "> Table 5.3 </span> Specific Gravity Results conducted in Boreholes
+                            </h2>
+                            {formData.labTestResults?.map((bh, bhIndex) => {
+                                const logsWithSG = bh.filter(log => log.specificGravity);
+                                if (logsWithSG.length === 0) return null;
+
+                                return (
+                                    <table
+                                        key={bhIndex}
+                                        className="w-full border-collapse border border-black text-[8pt] text-center mb-4"
+                                    >
+                                        <thead>
+                                            <tr className="bg-gray-200">
+                                                <th colSpan={2} className="border border-black p-1">
+                                                    Specific Gravity Results - BH {bhIndex + 1}
+                                                </th>
+                                            </tr>
+                                            <tr className="bg-gray-200">
+                                                <th className="border border-black p-1 uppercase">Depth (m)</th>
+                                                <th className="border border-black p-1 uppercase">Specific Gravity</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {logsWithSG.map((log, logIndex) => {
+                                                return (
+                                                    <tr key={logIndex}>
+                                                        <td className="border border-black p-1">{log.depth}</td>
+                                                        <td className="border border-black p-1">{log.specificGravity || '-'}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                );
+                            })}
                         </Page>
+
+                        <Page reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-blue-600 text-white px-2 mr-3 uppercase ">5.5</span> Shear Parameters
+                            </h2>
+                            <h2 className="text-[10pt] font-bold mt-4 mb-4 flex items-center">
+                                <span className="bg-gray-200 text-black px-2 mr-3 uppercase "> Table 5.4 </span> Shear Parameters Results conducted in Boreholes
+                            </h2>
+                            {formData.directShearResults?.map((bh, bhIndex) => {
+                                const logsWithShear = bh.filter(log => log.cValue || log.phiValue);
+                                if (logsWithShear.length === 0) return null;
+
+                                return (
+                                    <table
+                                        key={bhIndex}
+                                        className="w-full border-collapse border border-black text-[8pt] text-center mb-4"
+                                    >
+                                        <thead>
+                                            <tr className="bg-gray-200">
+                                                <th colSpan={3} className="border border-black p-1">
+                                                    Shear Parameters Results - BH {bhIndex + 1}
+                                                </th>
+                                            </tr>
+                                            <tr className="bg-gray-200">
+                                                <th className="border border-black p-1 uppercase">Depth of Sample (m)</th>
+                                                <th className="border border-black p-1 uppercase">Cohesion (C) - kg/cm²</th>
+                                                <th className="border border-black p-1 uppercase">Angle of Internal Friction (Φ)</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {logsWithShear.map((log, logIndex) => {
+                                                return (
+                                                    <tr key={logIndex}>
+                                                        <td className="border border-black p-1">{log.depthOfSample}</td>
+                                                        <td className="border border-black p-1">{log.cValue || '-'}</td>
+                                                        <td className="border border-black p-1">{log.phiValue ? `${log.phiValue}°` : '-'}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                );
+                            })}
+                        </Page>
+
 
                         {/* Borehole Log Pages */}
                         {formData.boreholeLogs?.map((log, bhIndex) => (
@@ -631,7 +822,7 @@ const ReportPreview = ({ formData, onClose }) => {
                                         <tbody>
                                             {analysis.map((row, rowIndex) => (
                                                 <tr key={rowIndex}>
-                                                    <td className="border border-black p-2 font-bold">{row.depth}</td>
+                                                    <td className="border border-black p-2 font-bold">{row.depthOfSample}</td>
                                                     <td className="border border-black p-2">{row.cValue || '-'}</td>
                                                     <td className="border border-black p-2">{row.phiValue || '-'}</td>
                                                     <td className="border border-black p-2">Consolidated Undrained</td>
@@ -712,7 +903,7 @@ const ReportPreview = ({ formData, onClose }) => {
 
                         {/* Point Load Strength Test Results */}
                         {formData.pointLoadStrength?.map((analysis, bhIndex) => (
-                            <Page key={`pls-${bhIndex}`}>
+                            <Page key={`pls-${bhIndex}`} reportId={formData.reportId} pageNumber={++currentPage} totalPages={totalPages}>
                                 <h4 className="font-bold text-[12pt] mb-4 text-blue-900">Point Load Strength Test Results: (BH {bhIndex + 1})</h4>
                                 <div className="flex-1">
                                     <table className="w-full border-collapse border border-black text-[9pt] text-center">
@@ -809,7 +1000,7 @@ const ReportPreview = ({ formData, onClose }) => {
                                 </div>
                                 <div className="mt-8 p-4 border-l-4 border-blue-900 bg-gray-50">
                                     <p className="italic text-gray-700">
-                                        Note: Note: The recommendations were made in this report based on 1 Nos. 100/150mm Auger Borehole/T.P investigations. During actual excavation if you encountered with any change of strata or loose strata or low SPT value, it is advisable to bring to the notice of Consultants or Clients.
+                                        Note: The recommendations were made in this report based on 1 Nos. 100/150mm Auger Borehole/T.P investigations. During actual excavation if you encountered with any change of strata or loose strata or low SPT value, it is advisable to bring to the notice of Consultants or Clients.
                                     </p>
                                 </div>
                                 <div className="mt-8 flex flex-col items-end">

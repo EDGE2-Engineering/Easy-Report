@@ -24,6 +24,48 @@ import reportTemplateHtml from '@/templates/report-template.html?raw'
 import { supabase } from '@/lib/customSupabaseClient';
 
 
+const soilTypes = [
+    'Filled-up Soil',
+    'Brownish Gravelly Soil',
+    'Grayish Gravelly Soil',
+    'Open Rock',
+    'Brownish Silty Sand (SM)',
+    'Brownish Silt (ML)',
+    'Grayish Silt (ML)',
+    'Light Yellowish Silt (ML)',
+    'Grayish Silty Sand (SM)',
+    'Grayish Silty Gravels (GM)',
+    'Brownish Silty Gravel (GM)',
+    'Grayish Clayey Gravel (GC)',
+    'Brownish Clayey Gravel (GC)',
+    'Poorly Graded Gravel (GP)',
+    'Poorly Graded Sand (SP)',
+    'Brownish Clayey Sand (SC)',
+    'Grayish Clayey Sand (SC)',
+    'Brownish Clay of Low Plasticity (CL)',
+    'Grayish Clay of Low Plasticity (CL)',
+    'Grayish Clay of High Plasticity (CH)',
+    'Black Clay of High Plasticity (CH)',
+    'Soft Disintegrated Weathered Rock',
+    'Weathered Rock',
+    'Lateritic Rock',
+    'Laterite Hard Gravels',
+    'Rock Pebbles/Hard Morum',
+    'Basalt Rock',
+    'Fractured Basalt Rock',
+    'Hard Rock',
+    'Medium Hard Rock',
+    'Reddish Gravelly Soil',
+    'Reddish Silty Sand (SM)',
+    'Reddish Silty Gravel (GM)',
+    'Reddish Silt (ML)',
+    'Reddish Clayey Gravel (GC)',
+    'Reddish Clayey Sand (SC)',
+    'Reddish Clay of Low Plasticity (CL)',
+    'Others'
+];
+
+
 function fillTemplate(template, data) {
     return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
         return data[key] ?? '';
@@ -36,6 +78,9 @@ const NewReportPage = () => {
     const [clients, setClients] = useState([]);
     const [filteredClients, setFilteredClients] = useState([]);
     const [showClientSuggestions, setShowClientSuggestions] = useState(false);
+    const [activeSoilField, setActiveSoilField] = useState(null);
+    const [filteredSoilTypes, setFilteredSoilTypes] = useState(soilTypes);
+    const [showSoilSuggestions, setShowSoilSuggestions] = useState(false);
 
     useEffect(() => {
         const fetchClients = async () => {
@@ -514,6 +559,24 @@ const NewReportPage = () => {
             ...prev,
             boreholeLogs: newLogs
         }));
+    };
+
+    const handleSoilSearch = (e, levelIndex, logIndex) => {
+        const value = e.target.value;
+        handleBoreholeLogChange(levelIndex, logIndex, 'soilType', value);
+
+        const filtered = soilTypes.filter(type =>
+            type.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredSoilTypes(filtered);
+        setShowSoilSuggestions(true);
+        setActiveSoilField({ levelIndex, logIndex });
+    };
+
+    const selectSoilType = (type, levelIndex, logIndex) => {
+        handleBoreholeLogChange(levelIndex, logIndex, 'soilType', type);
+        setShowSoilSuggestions(false);
+        setActiveSoilField(null);
     };
 
     const addBoreholeLog = (levelIndex) => {
@@ -1388,7 +1451,7 @@ const NewReportPage = () => {
                                     className="border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 transition-colors"
                                 >
                                     <Trash2 className="w-4 h-4 mr-2" />
-                                    Clear Form
+                                    Clear
                                 </Button>
                                 <Button
                                     type="button"
@@ -1407,7 +1470,7 @@ const NewReportPage = () => {
                                     className="bg-primary hover:bg-primary-dark text-white min-w-[150px]"
                                 >
                                     <Save className="w-4 h-4 mr-2" />
-                                    Generate Report
+                                    Gen
                                 </Button>
                             </div>
                         </div>
@@ -1422,17 +1485,6 @@ const NewReportPage = () => {
                                         <span className="hidden sm:inline">Basic Info</span>
                                         <span className="sm:hidden">Basic</span>
                                         {Object.values(errors).some(e => e.tab === 'basic') && (
-                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                                            </span>
-                                        )}
-                                    </TabsTrigger>
-                                    <TabsTrigger value="survey" className="flex items-center gap-1 relative">
-                                        <ClipboardList className="w-4 h-4" />
-                                        <span className="hidden sm:inline">Survey</span>
-                                        <span className="sm:hidden">Survey</span>
-                                        {Object.values(errors).some(e => e.tab === 'survey') && (
                                             <span className="absolute -top-1 -right-1 flex h-2 w-2">
                                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
@@ -1488,6 +1540,17 @@ const NewReportPage = () => {
                                         <span className="hidden sm:inline">Foundation </span>
                                         <span className="sm:hidden">Rock</span>
                                         {Object.values(errors).some(e => e.tab === 'rock') && (
+                                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                            </span>
+                                        )}
+                                    </TabsTrigger>
+                                    <TabsTrigger value="survey" className="flex items-center gap-1 relative">
+                                        <ClipboardList className="w-4 h-4" />
+                                        <span className="hidden sm:inline">Survey</span>
+                                        <span className="sm:hidden">Survey</span>
+                                        {Object.values(errors).some(e => e.tab === 'survey') && (
                                             <span className="absolute -top-1 -right-1 flex h-2 w-2">
                                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
@@ -2123,7 +2186,38 @@ const NewReportPage = () => {
                                                                                 </SelectContent>
                                                                             </Select>
                                                                         </td>
-                                                                        <td className="px-2 py-2"><Input value={log.soilType} onChange={(e) => handleBoreholeLogChange(levelIndex, logIndex, 'soilType', e.target.value)} className="h-8" placeholder="Soil Type" /></td>
+                                                                        <td className="px-2 py-2 relative">
+                                                                            <Input
+                                                                                value={log.soilType}
+                                                                                onChange={(e) => handleSoilSearch(e, levelIndex, logIndex)}
+                                                                                onFocus={() => {
+                                                                                    setActiveSoilField({ levelIndex, logIndex });
+                                                                                    setShowSoilSuggestions(true);
+                                                                                    setFilteredSoilTypes(soilTypes.filter(type =>
+                                                                                        type.toLowerCase().includes((log.soilType || '').toLowerCase())
+                                                                                    ));
+                                                                                }}
+                                                                                onBlur={() => setTimeout(() => setShowSoilSuggestions(false), 200)}
+                                                                                className="h-8"
+                                                                                placeholder="Soil Type"
+                                                                            />
+                                                                            {showSoilSuggestions &&
+                                                                                activeSoilField?.levelIndex === levelIndex &&
+                                                                                activeSoilField?.logIndex === logIndex &&
+                                                                                filteredSoilTypes.length > 0 && (
+                                                                                    <div className="absolute z-[100] w-64 bg-white border rounded-md shadow-lg max-h-40 overflow-auto mt-1 left-0">
+                                                                                        {filteredSoilTypes.map((type, idx) => (
+                                                                                            <div
+                                                                                                key={idx}
+                                                                                                className="p-2 hover:bg-gray-100 cursor-pointer text-xs"
+                                                                                                onClick={() => selectSoilType(type, levelIndex, logIndex)}
+                                                                                            >
+                                                                                                {type}
+                                                                                            </div>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                )}
+                                                                        </td>
                                                                         <td className="px-2 py-2 text-center">
                                                                             <div className="flex justify-center">
                                                                                 <Checkbox
