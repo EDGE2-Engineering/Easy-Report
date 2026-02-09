@@ -4,12 +4,43 @@ import { X, Printer, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Page = ({ children, reportId, pageNumber, totalPages }) => (
-    <div className="a4-page shadow-2xl print:shadow-none bg-white relative overflow-hidden"
-        style={{ width: '210mm', height: '297mm', padding: '10mm', minHeight: '297mm', boxSizing: 'border-box', pageBreakAfter: 'always', breakAfter: 'page' }}>
-        <div className="border-[0.5pt] border-black h-[277mm] relative p-2 flex flex-col overflow">
+    <div
+        className="a4-page shadow-2xl print:shadow-none bg-white relative overflow-hidden"
+        style={{
+            width: '210mm',
+            height: '297mm',
+            padding: '10mm',
+            minHeight: '297mm',
+            boxSizing: 'border-box',
+            pageBreakAfter: 'always',
+            breakAfter: 'page'
+        }}
+    >
+        {/* Watermark */}
+        <div
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            style={{
+                transform: 'rotate(-60deg)',
+                zIndex: 0
+            }}
+        >
+            <span
+                style={{
+                    fontSize: '41pt',
+                    fontWeight: 700,
+                    color: 'rgba(0,0,0,0.03)',
+                    whiteSpace: 'nowrap'
+                }}
+            >
+                EDGE2 Engineering Solutions India Pvt. Ltd.
+            </span>
+        </div>
+
+        <div className="border-[0.5pt] border-black h-[277mm] relative p-2 flex flex-col overflow z-10">
             <div className="flex-grow overflow-hidden">
                 {children}
             </div>
+
             {/* Page Footer */}
             <div className="absolute bottom-[-25px] left-[5px] right-[5px]">
                 <div className="pt-2 text-gray-700 grid grid-cols-2 items-center">
@@ -17,13 +48,16 @@ const Page = ({ children, reportId, pageNumber, totalPages }) => (
                         EDGE2 Engineering Solutions India Pvt. Ltd.
                     </p>
                     <p className="text-[8pt] text-right font-semibold">
-                        Report ID: {reportId || 'N/A'} <span className="text-[8pt] px-4 text-right">|</span> Page {pageNumber} of {totalPages}
+                        Report ID: {reportId || 'N/A'}
+                        <span className="px-4">|</span>
+                        Page {pageNumber} of {totalPages}
                     </p>
                 </div>
             </div>
         </div>
     </div>
 );
+
 
 
 
@@ -111,11 +145,15 @@ const ReportPreview = ({ formData, onClose }) => {
                                     </p>
                                 </div>
 
-                                {clientLogo && (
-                                    <div className="mt-4 mb-8 flex-shrink-0">
-                                        <img src={clientLogo} alt="Client Logo" className="max-w-[4cm] max-h-[4cm] object-contain" />
-                                    </div>
-                                )}
+                                <div className="mt-4 mb-8 flex-shrink-0 h-[2cm] w-[4cm] flex items-center justify-center">
+                                    {clientLogo && (
+                                        <img
+                                            src={clientLogo}
+                                            alt="Client Logo"
+                                            className="max-h-full max-w-full object-contain"
+                                        />
+                                    )}
+                                </div>
 
                                 {/* Report Details Table */}
                                 <div className="w-full max-w-[18cm] mx-auto mb-12">
