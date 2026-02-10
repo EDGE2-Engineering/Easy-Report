@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs.jsx";
-import { AlertCircle, ListTree, Save, Plus, Trash2, LandPlot, FileText, TestTube, MapPin, ClipboardList, FileCheck, ArrowDownFromLine, Layers, Lightbulb, Eye } from 'lucide-react';
+import { AlertCircle, ListTree, Save, Plus, Trash2, LandPlot, FileText, TestTube, MapPin, ClipboardList, FileCheck, ArrowDownFromLine, Layers, Lightbulb, Eye, Zap } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import ReportPreview from '@/components/ReportPreview';
 import reportTemplateHtml from '@/templates/report-template.html?raw'
@@ -376,6 +376,197 @@ const NewReportPage = () => {
             console.error('Failed to save form data:', e);
         }
     }, [formData]);
+
+    // Generate random sample data
+    const generateRandomSampleData = () => {
+        const randomProjectTypes = ['Commercial Building (G+4)', 'Residential Apartment (Stilt+10)', 'Industrial Shed', 'Bridge Abutment', 'Overhead Water Tank'];
+        const randomClients = ['Prestige Constructions', 'Brigade Group', 'Sobha Ltd', 'Total Environment', 'Adani Realty'];
+
+        const numBH = 2 + Math.floor(Math.random() * 2); // 2 or 3 boreholes
+
+        const data = {
+            ...getInitialFormData(), // Start with defaults
+            projectType: randomProjectTypes[Math.floor(Math.random() * randomProjectTypes.length)],
+            reportId: `EDGE2/GEO/${new Date().getFullYear()}/${100 + Math.floor(Math.random() * 900)}`,
+            projectDetails: 'GBT 40m - Multi-storey structure',
+            client: randomClients[Math.floor(Math.random() * randomClients.length)],
+            clientAddress: '123, MG Road, Residency Area, Bengaluru - 560001',
+            latitude: (12.9 + Math.random() * 0.1).toFixed(6),
+            longitude: (77.5 + Math.random() * 0.1).toFixed(6),
+            siteId: `SITE-${1000 + Math.floor(Math.random() * 9000)}`,
+            anchorId: `ANC-${Math.floor(Math.random() * 1000)}`,
+            siteName: 'Project Green Meadows',
+            siteAddress: 'Sy No. 45/2, Ullal Village, Yeshwanthpur Hobli, Bengaluru North',
+            surveyDate: new Date().toISOString().split('T')[0],
+            groundWaterTable: 'Not Encountered',
+            recommendations: 'Based on the investigation, isolated foundation is recommended. Protective drainage should be provided. Fill material should be well compacted.',
+        };
+
+        // Populate Survey Report
+        const surveyAnswers = ['Cloudy', 'Plain', 'Yes', 'Available', '20m', 'None', 'Plain'];
+        data.surveyReport = data.surveyReport.map((item, idx) => ({
+            ...item,
+            value: surveyAnswers[idx % surveyAnswers.length]
+        }));
+
+        // Populate Borehole Logs
+        data.boreholeLogs = Array.from({ length: numBH }, () =>
+            Array.from({ length: 4 }, (_, i) => ({
+                depth: (i * 1.5 + 1.5).toFixed(1),
+                natureOfSampling: i % 2 === 0 ? 'Undisturbed' : 'Disturbed',
+                soilType: soilTypes[Math.floor(Math.random() * (soilTypes.length - 1))],
+                waterTable: Math.random() > 0.8,
+                spt1: 10 + Math.floor(Math.random() * 10),
+                spt2: 15 + Math.floor(Math.random() * 10),
+                spt3: 20 + Math.floor(Math.random() * 10),
+                shearParameters: {
+                    cValue: (0.1 + Math.random() * 0.5).toFixed(2),
+                    phiValue: (15 + Math.random() * 15).toFixed(0)
+                },
+                coreLength: '',
+                coreRecovery: '',
+                rqd: '',
+                sbc: (150 + Math.floor(Math.random() * 150)).toFixed(0)
+            }))
+        );
+
+        // Populate Lab Test Results
+        data.labTestResults = data.boreholeLogs.map(bh =>
+            bh.map(log => ({
+                depth: log.depth,
+                bulkDensity: (1.6 + Math.random() * 0.4).toFixed(2),
+                moistureContent: (10 + Math.random() * 20).toFixed(1),
+                grainSizeDistribution: {
+                    gravel: (5 + Math.random() * 15).toFixed(1),
+                    sand: (20 + Math.random() * 40).toFixed(1),
+                    siltAndClay: (30 + Math.random() * 30).toFixed(1)
+                },
+                atterbergLimits: {
+                    liquidLimit: (30 + Math.random() * 20).toFixed(1),
+                    plasticLimit: (15 + Math.random() * 10).toFixed(1),
+                    plasticityIndex: (10 + Math.random() * 15).toFixed(1)
+                },
+                specificGravity: (2.6 + Math.random() * 0.1).toFixed(2),
+                freeSwellIndex: (10 + Math.random() * 20).toFixed(0)
+            }))
+        );
+
+        // Populate Grain Size Analysis (2 samples per BH)
+        data.grainSizeAnalysis = data.boreholeLogs.map(bh =>
+            bh.slice(0, 2).map(log => ({
+                depth: log.depth,
+                sieve1: (95 + Math.random() * 5).toFixed(1),
+                sieve2: (85 + Math.random() * 10).toFixed(1),
+                sieve3: (75 + Math.random() * 10).toFixed(1),
+                sieve4: (65 + Math.random() * 10).toFixed(1),
+                sieve5: (55 + Math.random() * 10).toFixed(1),
+                sieve6: (45 + Math.random() * 10).toFixed(1),
+                sieve7: (35 + Math.random() * 10).toFixed(1),
+                sieve8: (25 + Math.random() * 10).toFixed(1),
+                sieve9: (15 + Math.random() * 10).toFixed(1)
+            }))
+        );
+
+        // Populate SBC Details
+        data.sbcDetails = data.boreholeLogs.map(bh =>
+            bh.map(log => ({
+                depth: log.depth,
+                footingDimension: '1.5m x 1.5m',
+                useForReport: Math.random() > 0.5,
+                sbcValue: log.sbc
+            }))
+        );
+
+        // Populate Sub Soil Profile
+        data.subSoilProfile = data.boreholeLogs.map(bh =>
+            bh.slice(0, 2).map((log, i) => ({
+                depth: i === 0 ? `0.0 to ${log.depth}` : `${bh[i - 1].depth} to ${log.depth}`,
+                description: log.soilType
+            }))
+        );
+
+        // Populate Direct Shear
+        data.directShearResults = Array.from({ length: 2 }, (_, i) => [
+            {
+                shearBoxSize: '6cm x 6cm',
+                depthOfSample: (1.5 + i * 1.5).toFixed(1),
+                cValue: (0.15 + Math.random() * 0.1).toFixed(2),
+                phiValue: (25 + Math.random() * 5).toFixed(0),
+                stressReadings: [
+                    { normalStress: '50', shearStress: '45' },
+                    { normalStress: '100', shearStress: '85' },
+                    { normalStress: '150', shearStress: '125' }
+                ]
+            }
+        ]);
+
+        // Populate Point Load Strength (Rock Core)
+        data.pointLoadStrength = data.boreholeLogs.map(bh =>
+            bh.slice(0, 1).map(log => ({
+                depth: log.depth,
+                readings: [
+                    { loadAtFailure: '4.5', d50: '50', d: '50', ucs: '45' },
+                    { loadAtFailure: '5.2', d50: '50', d: '50', ucs: '52' }
+                ]
+            }))
+        );
+
+        // Populate Point Load Strength (Lump)
+        data.pointLoadStrengthLump = data.boreholeLogs.map(bh =>
+            bh.slice(0, 1).map(log => ({
+                depth: log.depth,
+                readings: [
+                    { loadAtFailure: '3.8', d50: '45', d: '45', w: '40', ucs: '38' }
+                ]
+            }))
+        );
+
+        // Populate Foundation in Rock Formations
+        data.foundationRockFormations = [
+            {
+                rows: [
+                    {
+                        rock: 'Granite',
+                        strength: 'Hard',
+                        rqd: '75%',
+                        spacingDiscontinuity: '200mm',
+                        conditionOfDiscontinuity: 'Tight',
+                        gwtCondition: 'Dry',
+                        discontinuityOrientation: 'Horizontal',
+                        rockGrade: 'Grade II',
+                        inferredNetSbp: '2500 kN/m²'
+                    }
+                ]
+            }
+        ];
+
+        // Populate Chemical Analysis
+        data.chemicalAnalysis = [
+            {
+                phValue: (7.5 + Math.random() * 1.0).toFixed(1),
+                sulphates: (20 + Math.random() * 30).toFixed(1),
+                chlorides: (50 + Math.random() * 50).toFixed(1),
+                additionalKeys: [
+                    { key: 'Organic Matter', value: '0.5%' }
+                ]
+            }
+        ];
+
+        return data;
+    };
+
+    const fillWithRandomData = () => {
+        if (window.confirm('This will fill the form with random sample data and overwrite any current changes. Proceed?')) {
+            const randomData = generateRandomSampleData();
+            setFormData(randomData);
+            setErrors({});
+            toast({
+                title: "Random Data Generated",
+                description: "The form has been populated with a comprehensive sample dataset.",
+                className: "bg-green-50 border-green-200 text-green-900",
+            });
+        }
+    };
 
     // Clear form and localStorage
     const clearForm = () => {
@@ -1443,6 +1634,16 @@ const NewReportPage = () => {
 
                             {/* Right side */}
                             <div className="flex items-center space-x-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={fillWithRandomData}
+                                    className="border-green-300 text-green-600 hover:bg-green-50 hover:border-green-400 transition-colors"
+                                >
+                                    <Zap className="w-4 h-4 mr-2" />
+                                    Random Sample Input
+                                </Button>
                                 <Button
                                     type="button"
                                     variant="outline"
