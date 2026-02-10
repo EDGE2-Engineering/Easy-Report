@@ -26,7 +26,7 @@ const AdminPage = () => {
   useEffect(() => {
     // Check active session
     const session = auth.getSession();
-    if (session && session.user && session.user.role !== 'admin') {
+    if (session && session.user && session.user.role === 'standard') {
       navigate('/new-report');
       return;
     }

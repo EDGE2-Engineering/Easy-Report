@@ -132,7 +132,7 @@ const AdminSettings = () => {
                 </div>
             </div>
 
-            {userRole === 'admin' ? (
+            {userRole !== 'standard' ? (
                 <Tabs defaultValue="security" className="w-full">
                     <TabsList className="grid w-full grid-cols-3 mb-8">
                         <TabsTrigger value="users" className="flex items-center gap-2">

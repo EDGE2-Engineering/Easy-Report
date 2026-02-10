@@ -26,7 +26,7 @@ const Navbar = () => {
   const navItems = [
     { path: '/new-report', label: 'New Report', icon: ClipboardCheck },
     { path: '/', label: 'Settings', icon: Settings, adminOnly: true },
-  ].filter(item => !item.adminOnly || (session && session.user && session.user.role === 'admin'));
+  ].filter(item => !item.adminOnly || (session && session.user && session.user.role !== 'standard'));
 
   const isActive = (path) => location.pathname === path;
 

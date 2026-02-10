@@ -26,6 +26,7 @@ import { auth } from '@/lib/auth';
 const AdminUserManager = () => {
     const [users, setUsers] = useState([]);
     const [currentUserId, setCurrentUserId] = useState(null);
+    const [currentUserRole, setCurrentUserRole] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
@@ -52,6 +53,7 @@ const AdminUserManager = () => {
         const session = auth.getSession();
         if (session && session.user) {
             setCurrentUserId(session.user.id);
+            setCurrentUserRole(session.user.role);
         }
     }, []);
 
@@ -85,6 +87,13 @@ const AdminUserManager = () => {
     };
 
     const toggleUserStatus = async (userId, currentStatus) => {
+        // Additional safeguard for admin role
+        const userToToggle = users.find(u => u.id === userId);
+        if (currentUserRole === 'admin' && userToToggle?.role === 'super_admin') {
+            toast({ title: "Access Denied", description: "You cannot manage super_admin users.", variant: "destructive" });
+            return;
+        }
+
         const { success, error } = await auth.updateUserStatus(userId, !currentStatus);
         if (success) {
             toast({ title: "Success", description: "User status updated." });
@@ -150,6 +159,9 @@ const AdminUserManager = () => {
                                 <SelectContent>
                                     <SelectItem value="standard">Standard</SelectItem>
                                     <SelectItem value="admin">Admin</SelectItem>
+                                    {currentUserRole === 'super_admin' && (
+                                        <SelectItem value="super_admin">Super Admin</SelectItem>
+                                    )}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -190,37 +202,45 @@ const AdminUserManager = () => {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {users.map((user) => (
-                                        <TableRow key={user.id}>
-                                            <TableCell className="font-medium">{user.username}</TableCell>
-                                            <TableCell>{user.full_name}</TableCell>
-                                            <TableCell>
-                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'
-                                                    }`}>
-                                                    {user.role}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell>
-                                                <span className={`flex items-center gap-1 text-xs ${user.is_active ? 'text-green-600' : 'text-red-600'
-                                                    }`}>
-                                                    {user.is_active ? <UserCheck className="w-3 h-3" /> : <UserX className="w-3 h-3" />}
-                                                    {user.is_active ? 'Active' : 'Inactive'}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => toggleUserStatus(user.id, user.is_active)}
-                                                    className={user.is_active ? "text-red-600 hover:text-red-700" : "text-green-600 hover:text-green-700"}
-                                                    disabled={user.id === currentUserId}
-                                                    title={user.id === currentUserId ? "You cannot deactivate yourself" : ""}
-                                                >
-                                                    {user.is_active ? "Deactivate" : "Activate"}
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
+                                    {users
+                                        .filter(user => {
+                                            // If current user is 'admin', hide 'super_admin' users
+                                            if (currentUserRole === 'admin' && user.role === 'super_admin') {
+                                                return false;
+                                            }
+                                            return true;
+                                        })
+                                        .map((user) => (
+                                            <TableRow key={user.id}>
+                                                <TableCell className="font-medium">{user.username}</TableCell>
+                                                <TableCell>{user.full_name}</TableCell>
+                                                <TableCell>
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'
+                                                        }`}>
+                                                        {user.role}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className={`flex items-center gap-1 text-xs ${user.is_active ? 'text-green-600' : 'text-red-600'
+                                                        }`}>
+                                                        {user.is_active ? <UserCheck className="w-3 h-3" /> : <UserX className="w-3 h-3" />}
+                                                        {user.is_active ? 'Active' : 'Inactive'}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => toggleUserStatus(user.id, user.is_active)}
+                                                        className={user.is_active ? "text-red-600 hover:text-red-700" : "text-green-600 hover:text-green-700"}
+                                                        disabled={user.id === currentUserId}
+                                                        title={user.id === currentUserId ? "You cannot deactivate yourself" : ""}
+                                                    >
+                                                        {user.is_active ? "Deactivate" : "Activate"}
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
                                     {users.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={5} className="text-center py-4 text-gray-500">
