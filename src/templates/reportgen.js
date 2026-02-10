@@ -3102,9 +3102,9 @@ class GrainSizeGenerator {
                 let y_vals = [
                     parseFloat(row.sieve1), parseFloat(row.sieve2), parseFloat(row.sieve3),
                     parseFloat(row.sieve4), parseFloat(row.sieve5), parseFloat(row.sieve6),
-                    parseFloat(row.sieve7), parseFloat(row.sieve8), parseFloat(row.sieve9)
+                    parseFloat(row.sieve7), parseFloat(row.sieve8)
                 ];
-                let current_x = [4.75, 2.36, 1.18, 0.6, 0.425, 0.3, 0.15, 0.075, 0];
+                let current_x = [4.75, 2.36, 1.18, 0.6, 0.425, 0.3, 0.15, 0.075];
 
                 // Remove 0 from x and corresponding y
                 if (current_x[current_x.length - 1] === 0) {

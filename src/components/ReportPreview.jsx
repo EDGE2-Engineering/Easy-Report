@@ -21,8 +21,7 @@ const GrainSizeGraph = ({ data, bhName }) => {
                 { x: 0.425, y: parseFloat(row.sieve5) || 0 },
                 { x: 0.300, y: parseFloat(row.sieve6) || 0 },
                 { x: 0.150, y: parseFloat(row.sieve7) || 0 },
-                { x: 0.075, y: parseFloat(row.sieve8) || 0 },
-                { x: 0.001, y: parseFloat(row.sieve9) || 0 }
+                { x: 0.075, y: parseFloat(row.sieve8) || 0 }
             ].filter(p => !isNaN(p.y));
 
             return {

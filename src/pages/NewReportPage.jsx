@@ -480,7 +480,7 @@ const NewReportPage = () => {
                 sieve6: (45 + Math.random() * 10).toFixed(1),
                 sieve7: (35 + Math.random() * 10).toFixed(1),
                 sieve8: (25 + Math.random() * 10).toFixed(1),
-                sieve9: (15 + Math.random() * 10).toFixed(1)
+                sieve9: (25 + Math.random() * 10).toFixed(1)
             }))
         );
 
@@ -1009,6 +1009,12 @@ const NewReportPage = () => {
     const handleGrainSizeAnalysisChange = (levelIndex, rowIndex, field, value) => {
         const newAnalysis = [...formData.grainSizeAnalysis];
         newAnalysis[levelIndex][rowIndex][field] = value;
+
+        // Automatically sync sieve9 (Pan) with sieve8
+        if (field === 'sieve8') {
+            newAnalysis[levelIndex][rowIndex]['sieve9'] = value;
+        }
+
         setFormData(prev => ({
             ...prev,
             grainSizeAnalysis: newAnalysis
@@ -2794,7 +2800,6 @@ const NewReportPage = () => {
                                                                     <th className="px-3 py-3 min-w-[100px]">Sieve 6</th>
                                                                     <th className="px-3 py-3 min-w-[100px]">Sieve 7</th>
                                                                     <th className="px-3 py-3 min-w-[100px]">Sieve 8</th>
-                                                                    <th className="px-3 py-3 min-w-[100px]">Sieve 9</th>
                                                                     <th className="px-3 py-3 w-[50px]"></th>
                                                                 </tr>
                                                             </thead>
@@ -2810,7 +2815,6 @@ const NewReportPage = () => {
                                                                         <td className="px-2 py-2"><Input value={item.sieve6} onChange={(e) => handleGrainSizeAnalysisChange(levelIndex, rowIndex, 'sieve6', e.target.value)} className="h-8" placeholder="Value" /></td>
                                                                         <td className="px-2 py-2"><Input value={item.sieve7} onChange={(e) => handleGrainSizeAnalysisChange(levelIndex, rowIndex, 'sieve7', e.target.value)} className="h-8" placeholder="Value" /></td>
                                                                         <td className="px-2 py-2"><Input value={item.sieve8} onChange={(e) => handleGrainSizeAnalysisChange(levelIndex, rowIndex, 'sieve8', e.target.value)} className="h-8" placeholder="Value" /></td>
-                                                                        <td className="px-2 py-2"><Input value={item.sieve9} onChange={(e) => handleGrainSizeAnalysisChange(levelIndex, rowIndex, 'sieve9', e.target.value)} className="h-8" placeholder="Value" /></td>
                                                                         <td className="px-2 py-2 text-center">
                                                                             {levelRows.length > 1 && (
                                                                                 <Button
