@@ -10,6 +10,17 @@ resource "aws_cognito_user_pool" "main" {
   alias_attributes         = ["preferred_username", "email"]
   auto_verified_attributes = ["email"]
 
+  admin_create_user_config {
+    allow_admin_create_user_only = true
+  }
+
+  account_recovery_setting {
+    recovery_mechanism {
+      name     = "admin_only"
+      priority = 1
+    }
+  }
+
   password_policy {
     minimum_length    = 8
     require_lowercase = true
@@ -23,7 +34,7 @@ resource "aws_cognito_user_pool" "main" {
     developer_only_attribute = false
     mutable                  = true
     name                     = "user_name"
-    required                 = true
+    required                 = false
 
     string_attribute_constraints {
       min_length = 7
@@ -71,17 +82,38 @@ resource "aws_cognito_user_pool_client" "client" {
   supported_identity_providers         = ["COGNITO"]
 }
 
-resource "aws_cognito_user" "admin" {
+resource "aws_cognito_user_pool_domain" "main" {
+  domain       = var.project_name
+  user_pool_id = aws_cognito_user_pool.main.id
+  managed_login_version = 2 
+}
+
+resource "aws_cognito_user" "admin_user" {
   user_pool_id = aws_cognito_user_pool.main.id
   username     = "admin"
 
   attributes = {
-    email          = var.admin_email
+    email          = "admin@example.com"
+    name           = "Administrator"
     email_verified = true
     "custom:role" = "admin"
   }
 
   password = var.admin_password
+}
+
+resource "aws_cognito_user" "superadmin_user" {
+  user_pool_id = aws_cognito_user_pool.main.id
+  username     = "superadmin"
+
+  attributes = {
+    email          = "superadmin@example.com"
+    name           = "Super Admin"
+    email_verified = true
+    "custom:role" = "superadmin"
+  }
+
+  password = var.superadmin_password
 }
 
 # --- Cognito Identity Pool ---
@@ -215,4 +247,8 @@ output "identity_pool_id" {
 
 output "region" {
   value = var.aws_region
+}
+
+output "cognito_domain_prefix" {
+  value = aws_cognito_user_pool_domain.main.domain
 }

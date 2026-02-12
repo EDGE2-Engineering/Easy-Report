@@ -22,13 +22,14 @@ variable "logout_urls" {
   default     = ["http://localhost:3000"]
 }
 
-variable "admin_email" {
-  description = "The email address for the initial admin user"
-  type        = string
-}
-
 variable "admin_password" {
   description = "The initial password for the admin user"
+  type        = string
+  sensitive   = true
+}
+
+variable "superadmin_password" {
+  description = "The initial password for the superadmin user"
   type        = string
   sensitive   = true
 }
