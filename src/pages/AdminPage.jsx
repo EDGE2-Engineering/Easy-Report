@@ -20,13 +20,8 @@ const AdminPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Redirect standard users to new-report page
-    if (auth.isAuthenticated && auth.user?.profile) {
-      const role = auth.user.profile['custom:role'] || auth.user.profile.role || 'standard';
-      if (role === 'standard') {
-        navigate('/new-report');
-      }
-    }
+    // Role matching is no longer used for page-level redirects
+    // Keeping this useEffect block empty or removing it if no other logic is needed
   }, [auth.isAuthenticated, auth.user, navigate]);
 
   const handleSignOut = async () => {

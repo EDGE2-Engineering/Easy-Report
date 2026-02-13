@@ -118,37 +118,31 @@ const AdminSettings = () => {
                 </div>
             </div>
 
-            {userRole !== 'standard' ? (
-                <Tabs defaultValue="reports" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 mb-8">
-                        <TabsTrigger value="users" className="flex items-center gap-2">
-                            <UserCog className="w-4 h-4" />
-                            Profile
-                        </TabsTrigger>
-                        <TabsTrigger value="clients" className="flex items-center gap-2">
-                            <UserCog className="w-4 h-4" />
-                            Clients
-                        </TabsTrigger>
-                        <TabsTrigger value="reports" className="flex items-center gap-2">
-                            <FileText className="w-4 h-4" />
-                            Reports
-                        </TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="reports" className="mt-0">
-                        <AdminReportsManager />
-                    </TabsContent>
-                    <TabsContent value="users" className="mt-0">
-                        <AdminUserManager />
-                    </TabsContent>
-                    <TabsContent value="clients" className="mt-0">
-                        <AdminClientsManager />
-                    </TabsContent>
-                </Tabs>
-            ) : (
-                <div className="grid grid-cols-1 gap-8">
-                    {renderSecuritySection()}
-                </div>
-            )}
+            <Tabs defaultValue="reports" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-8">
+                    <TabsTrigger value="users" className="flex items-center gap-2">
+                        <UserCog className="w-4 h-4" />
+                        Profile
+                    </TabsTrigger>
+                    <TabsTrigger value="clients" className="flex items-center gap-2">
+                        <UserCog className="w-4 h-4" />
+                        Clients
+                    </TabsTrigger>
+                    <TabsTrigger value="reports" className="flex items-center gap-2">
+                        <FileText className="w-4 h-4" />
+                        Reports
+                    </TabsTrigger>
+                </TabsList>
+                <TabsContent value="reports" className="mt-0">
+                    <AdminReportsManager />
+                </TabsContent>
+                <TabsContent value="users" className="mt-0">
+                    <AdminUserManager />
+                </TabsContent>
+                <TabsContent value="clients" className="mt-0">
+                    <AdminClientsManager />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 };

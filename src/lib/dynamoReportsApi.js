@@ -59,11 +59,6 @@ export const dynamoReportsApi = {
         }
     },
 
-    /**
-     * Get a single report by ID
-     * @param {string} reportId - The ID of the report
-     * @param {string} idToken - Cognito ID Token
-     */
     async getReport(reportId, idToken) {
         try {
             const docClient = getDocClient(idToken);
@@ -76,6 +71,35 @@ export const dynamoReportsApi = {
             return response.Item;
         } catch (error) {
             console.error("DynamoDB getReport error:", error);
+            throw error;
+        }
+    },
+
+    /**
+     * Finds a report by its custom reportId field using the TypeIndex GSI
+     * This is useful for catching duplicates if the primary "id" is a UUID
+     */
+    async getReportByReportId(reportId, idToken) {
+        try {
+            const docClient = getDocClient(idToken);
+            const command = new QueryCommand({
+                TableName: TABLE_NAME,
+                IndexName: "TypeIndex",
+                KeyConditionExpression: "#type = :type",
+                FilterExpression: "reportId = :reportId",
+                ExpressionAttributeNames: {
+                    "#type": "type"
+                },
+                ExpressionAttributeValues: {
+                    ":type": "report",
+                    ":reportId": reportId
+                }
+            });
+
+            const response = await docClient.send(command);
+            return response.Items?.[0] || null;
+        } catch (error) {
+            console.error("DynamoDB getReportByReportId error:", error);
             throw error;
         }
     },
@@ -95,6 +119,16 @@ export const dynamoReportsApi = {
                 type: reportType,
                 updated_at: new Date().toISOString()
             };
+
+            // If we're performing an overwrite/migration where the primary ID is changing 
+            // (e.g. from a UUID to the reportId itself), delete the old record first
+            if (reportData.id && reportData.id !== reportId) {
+                try {
+                    await this.deleteReport(reportData.id, idToken);
+                } catch (e) {
+                    console.warn("Could not delete legacy report record during migration:", e);
+                }
+            }
 
             // Check if it already exists to preserve created_at
             const existing = await this.getReport(reportId, idToken);

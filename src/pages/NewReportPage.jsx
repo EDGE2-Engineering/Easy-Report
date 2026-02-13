@@ -28,7 +28,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { AlertCircle, ListTree, Save, Plus, Trash2, LandPlot, FileText, TestTube, MapPin, ClipboardList, FileCheck, ArrowDownFromLine, Layers, Lightbulb, Eye, Zap, X, Loader2 } from 'lucide-react';
+import { AlertCircle, ListTree, Save, Plus, Trash2, LandPlot, FileText, TestTube, MapPin, ClipboardList, FileCheck, ArrowDownFromLine, Layers, Lightbulb, Eye, Zap, X, Loader2, Settings } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import ReportPreview from '@/components/ReportPreview';
 import reportTemplateHtml from '@/templates/report-template.html?raw'
@@ -1641,9 +1641,11 @@ const NewReportPage = () => {
             const token = auth.user?.id_token;
             if (!token) throw new Error('Authentication required');
 
-            // Check if report already exists
-            const existing = await dynamoReportsApi.getReport(formData.reportId, token);
-            if (existing) {
+            // Check if report already exists (using Report ID)
+            const existing = await dynamoReportsApi.getReportByReportId(formData.reportId, token);
+
+            // Trigger confirmation ONLY if it's a DIFFERENT record (different primary ID) or if we're starting a new report
+            if (existing && existing.id !== formData.id) {
                 setSaveConfirmation({ isOpen: true, isGenerating: false });
                 return;
             }
@@ -1668,9 +1670,11 @@ const NewReportPage = () => {
             const token = auth.user?.id_token;
             if (!token) throw new Error('Authentication required');
 
-            // Check if report already exists
-            const existing = await dynamoReportsApi.getReport(formData.reportId, token);
-            if (existing) {
+            // Check if report already exists (using Report ID)
+            const existing = await dynamoReportsApi.getReportByReportId(formData.reportId, token);
+
+            // Trigger confirmation ONLY if it's a DIFFERENT record (different primary ID) or if we're starting a new report
+            if (existing && existing.id !== formData.id) {
                 setSaveConfirmation({ isOpen: true, isGenerating: true });
                 return;
             }
@@ -1725,9 +1729,17 @@ const NewReportPage = () => {
             <Navbar />
 
             <main className="flex-grow container mx-auto px-1 py-8">
-                <div className="mb-2">
+                <div className="flex justify-between items-center mb-2">
                     <h1 className="text-xl font-bold text-gray-900">Create New Report</h1>
-                    {/* <p className="text-gray-500 mt-2">Enter the site details below to generate a new automated test report.</p> */}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate('/admin')}
+                        className="text-gray-500 hover:text-primary transition-colors flex items-center gap-2"
+                    >
+                        <Settings className="w-4 h-4" />
+                        Settings
+                    </Button>
                 </div>
 
                 <Card className="shadow-lg border-gray-200">
@@ -1745,23 +1757,16 @@ const NewReportPage = () => {
 
                             {/* Right side */}
                             <div className="flex items-center space-x-2">
-                                {(() => {
-                                    // Get role from Cognito auth
-                                    if (!auth.isAuthenticated || !auth.user?.profile) return false;
-                                    const role = auth.user.profile['custom:role'] || auth.user.profile.role || 'standard';
-                                    return role === 'superadmin';
-                                })() && (
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="lg"
-                                            onClick={fillWithRandomData}
-                                            className="border-green-300 text-green-600 hover:bg-green-50 hover:border-green-400 transition-colors"
-                                        >
-                                            <Zap className="w-4 h-4 mr-2" />
-                                            Random Sample Input
-                                        </Button>
-                                    )}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="lg"
+                                    onClick={fillWithRandomData}
+                                    className="border-green-300 text-green-600 hover:bg-green-50 hover:border-green-400 transition-colors"
+                                >
+                                    <Zap className="w-4 h-4 mr-2" />
+                                    Random Sample Input
+                                </Button>
                                 <Button
                                     type="button"
                                     variant="outline"

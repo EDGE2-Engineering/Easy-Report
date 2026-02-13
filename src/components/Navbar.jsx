@@ -51,8 +51,8 @@ const Navbar = () => {
 
   const navItems = [
     { path: '/new-report', label: 'New Report', icon: ClipboardCheck },
-    { path: '/', label: 'Settings', icon: Settings, adminOnly: true },
-  ].filter(item => !item.adminOnly || (auth.isAuthenticated && getUserRole() !== 'standard'));
+    { path: '/', label: 'Settings', icon: Settings },
+  ].filter(item => auth.isAuthenticated);
 
   const isActive = (path) => location.pathname === path;
 
