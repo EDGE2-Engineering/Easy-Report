@@ -7,7 +7,6 @@ variable "aws_region" {
 variable "project_name" {
   description = "The name of the project"
   type        = string
-  default     = "edge2-mtr"
 }
 
 variable "callback_urls" {
@@ -32,4 +31,10 @@ variable "superadmin_password" {
   description = "The initial password for the superadmin user"
   type        = string
   sensitive   = true
+}
+
+variable "tags" {
+  description = "A map of tags to apply to all resources"
+  type        = map(string)
+  default     = {}
 }

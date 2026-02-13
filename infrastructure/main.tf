@@ -1,5 +1,8 @@
 provider "aws" {
   region = var.aws_region
+  default_tags {
+    tags = var.tags
+  }
 }
 
 # --- Cognito User Pool ---
@@ -60,10 +63,6 @@ resource "aws_cognito_user_pool" "main" {
     email_message        = "Your verification code is {####}"
     email_subject        = "Verify your email"
   }
-
-  tags = {
-    Project = var.project_name
-  }
 }
 
 resource "aws_cognito_user_pool_client" "client" {
@@ -108,7 +107,7 @@ resource "aws_cognito_user" "superadmin_user" {
 
   attributes = {
     email          = "superadmin@example.com"
-    name           = "Super Admin"
+    name           = "Super Admin"  
     email_verified = true
     "custom:role" = "superadmin"
   }
