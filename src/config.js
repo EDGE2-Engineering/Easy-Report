@@ -4,10 +4,10 @@
  */
 
 const region = "us-east-1";
-const userPoolId = `us-east-1_WLiGIWTg0`;
-const clientId = "5t2fpvgroc0pr5q09ud89sfvae";
-const identityPoolId = "us-east-1:d86fd70c-2418-4211-bf74-2a7c67a3db97";
-const cognitoDomainPrefix = "edge2-easy-report";
+const userPoolId = `us-east-1_xsOQtWaRa`;
+const clientId = "67ontc525pu0gvmnab7buklhmi";
+const identityPoolId = "us-east-1:ba292155-da3e-4dce-8bbe-16fc5f519206";
+const cognitoDomainPrefix = "edge2";
 const domain = `https://${cognitoDomainPrefix}.auth.${region}.amazoncognito.com`;
 
 // Cognito Configuration

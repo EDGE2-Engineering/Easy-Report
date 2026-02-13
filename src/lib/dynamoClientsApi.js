@@ -6,14 +6,14 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
     DynamoDBDocumentClient,
-    ScanCommand,
+    QueryCommand,
     PutCommand,
     DeleteCommand
 } from "@aws-sdk/lib-dynamodb";
 import { cognitoConfig } from "@/config";
 import { getFrontendCredentials } from "@/lib/dynamoAuth";
 
-const TABLE_NAME = "EDGE2_Clients";
+const TABLE_NAME = "EDGE2Data";
 
 /**
  * Creates a DynamoDB Document Client with fresh temporary credentials
@@ -38,8 +38,16 @@ export const dynamoClientsApi = {
     async listClients(idToken) {
         try {
             const docClient = getDocClient(idToken);
-            const command = new ScanCommand({
-                TableName: TABLE_NAME
+            const command = new QueryCommand({
+                TableName: TABLE_NAME,
+                IndexName: "TypeIndex",
+                KeyConditionExpression: "#type = :type",
+                ExpressionAttributeNames: {
+                    "#type": "type"
+                },
+                ExpressionAttributeValues: {
+                    ":type": "client"
+                }
             });
 
             const response = await docClient.send(command);
@@ -60,6 +68,7 @@ export const dynamoClientsApi = {
             const docClient = getDocClient(idToken);
             const newClient = {
                 id: crypto.randomUUID(),
+                type: 'client',
                 ...formData,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
@@ -74,6 +83,31 @@ export const dynamoClientsApi = {
             return newClient;
         } catch (error) {
             console.error("DynamoDB createClient error:", error);
+            throw error;
+        }
+    },
+
+    async updateClient(clientId, formData, idToken) {
+        try {
+            const docClient = getDocClient(idToken);
+
+            // Note: We need to preserve the ID but we update other fields
+            const updatedClient = {
+                ...formData,
+                id: clientId,
+                type: 'client',
+                updated_at: new Date().toISOString()
+            };
+
+            const command = new PutCommand({
+                TableName: TABLE_NAME,
+                Item: updatedClient
+            });
+
+            await docClient.send(command);
+            return updatedClient;
+        } catch (error) {
+            console.error("DynamoDB updateClient error:", error);
             throw error;
         }
     },

@@ -1,7 +1,13 @@
+locals {
+  tags = {
+    Project = var.project_name
+  }
+}
+
 provider "aws" {
   region = var.aws_region
   default_tags {
-    tags = var.tags
+    tags = local.tags
   }
 }
 
@@ -82,9 +88,15 @@ resource "aws_cognito_user_pool_client" "client" {
 }
 
 resource "aws_cognito_user_pool_domain" "main" {
-  domain       = var.project_name
+  domain       = lower(var.project_name)
   user_pool_id = aws_cognito_user_pool.main.id
   managed_login_version = 2 
+}
+
+resource "aws_cognito_user_pool_ui_customization" "main" {
+  client_id    = aws_cognito_user_pool_client.client.id
+  user_pool_id = aws_cognito_user_pool.main.id
+  css          = ".label-customizable { font-weight: 400; }"
 }
 
 resource "aws_cognito_user" "admin_user" {
@@ -152,6 +164,21 @@ resource "aws_iam_role" "authenticated" {
           }
         }
       },
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = "cognito-identity.amazonaws.com"
+        }
+        Condition = {
+          "StringEquals" = {
+            "cognito-identity.amazonaws.com:aud" = "us-east-1:6b4965b8-d36b-4893-b81a-f24a7c99750b"
+          }
+          "ForAnyValue:StringLike" = {
+            "cognito-identity.amazonaws.com:amr" = "authenticated"
+          }
+        }
+      }
     ]
   })
 }
@@ -176,58 +203,191 @@ resource "aws_iam_role_policy" "authenticated" {
   })
 }
 
-resource "aws_iam_role" "unauthenticated" {
-  name = "${var.project_name}-cognito-unauthenticated"
+resource "aws_cognito_identity_pool_roles_attachment" "main" {
+  identity_pool_id = aws_cognito_identity_pool.main.id
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRoleWithWebIdentity"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Federated = "cognito-identity.amazonaws.com"
-        }
-        Condition = {
-          "StringEquals" = {
-            "cognito-identity.amazonaws.com:aud" = aws_cognito_identity_pool.main.id
-          }
-          "ForAnyValue:StringLike" = {
-            "cognito-identity.amazonaws.com:amr" = "unauthenticated"
-          }
-        }
-      },
-    ]
-  })
+  roles = {
+    "authenticated" = aws_iam_role.authenticated.arn
+  }
 }
 
-resource "aws_iam_role_policy" "unauthenticated" {
-  name = "${var.project_name}-cognito-unauthenticated-policy"
-  role = aws_iam_role.unauthenticated.id
+# --- Project IAM Policy ---
+
+resource "aws_iam_policy" "project_access" {
+  name        = "${var.project_name}-access-policy"
+  description = "Project-wide access policy for EDGE2 resources"
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Action = [
-          "mobileanalytics:PutEvents",
-          "cognito-sync:*",
-        ]
+        Sid      = "DynamoListAccess"
         Effect   = "Allow"
+        Action   = ["dynamodb:ListTables"]
         Resource = "*"
       },
+      {
+        Sid      = "EDGE2AppsTableAccess"
+        Effect   = "Allow"
+        Action   = [
+          "dynamodb:DescribeTable",
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:PartiQLSelect"
+        ]
+        Resource = "*"
+        Condition = {
+          "StringEquals" = {
+            "aws:ResourceTag/Project" = local.tags["Project"]
+          }
+        }
+      },
+      {
+        Sid      = "IAMCreateRole"
+        Effect   = "Allow"
+        Action   = ["iam:CreateRole", "iam:TagRole"]
+        Resource = "*"
+        Condition = {
+          "StringEquals" = {
+            "aws:RequestTag/Project" = local.tags["Project"]
+          }
+        }
+      },
+      {
+        Sid      = "IAMManageTaggedRoles"
+        Effect   = "Allow"
+        Action   = [
+          "iam:GetRole",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
+          "iam:ListInstanceProfilesForRole",
+          "iam:DeleteRole",
+          "iam:PutRolePolicy",
+          "iam:GetRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:TagRole",
+          "iam:UntagRole"
+        ]
+        Resource = "*"
+        Condition = {
+          "StringEquals" = {
+            "aws:ResourceTag/Project" = local.tags["Project"]
+          }
+        }
+      },
+      {
+        Sid      = "IAMPassRoleForCognito"
+        Effect   = "Allow"
+        Action   = "iam:PassRole"
+        Resource = "*"
+        Condition = {
+          "StringEquals" = {
+            "aws:ResourceTag/Project" = local.tags["Project"]
+          }
+        }
+      },
+      {
+        Sid      = "CognitoGlobalRead"
+        Effect   = "Allow"
+        Action   = ["cognito-idp:DescribeUserPoolDomain", "cognito-idp:ListUserPools"]
+        Resource = "*"
+      },
+      {
+        Sid      = "CognitoCreate"
+        Effect   = "Allow"
+        Action   = [
+          "cognito-idp:CreateUserPool",
+          "cognito-idp:TagResource",
+          "cognito-idp:UntagResource",
+          "cognito-identity:CreateIdentityPool",
+          "cognito-identity:TagResource",
+          "cognito-identity:UntagResource"
+        ]
+        Resource = "*"
+        Condition = {
+          "StringEquals" = {
+            "aws:RequestTag/Project" = local.tags["Project"]
+          }
+          "ForAllValues:StringEquals" = {
+            "aws:TagKeys" = ["Project"]
+          }
+        }
+      },
+      {
+        Sid      = "CognitoManageTagged"
+        Effect   = "Allow"
+        Action   = [
+          "cognito-idp:DescribeUserPool",
+          "cognito-idp:GetUserPoolMfaConfig",
+          "cognito-idp:DeleteUserPool",
+          "cognito-idp:CreateUserPoolClient",
+          "cognito-idp:DescribeUserPoolClient",
+          "cognito-idp:DeleteUserPoolClient",
+          "cognito-idp:AdminCreateUser",
+          "cognito-idp:AdminGetUser",
+          "cognito-idp:AdminDeleteUser",
+          "cognito-idp:AdminSetUserPassword",
+          "cognito-idp:AddCustomAttributes",
+          "cognito-idp:AdminUpdateUserAttributes",
+          "cognito-idp:UpdateUserPool",
+          "cognito-idp:AdminDeleteUserAttributes",
+          "cognito-idp:CreateUserPoolDomain",
+          "cognito-idp:DeleteUserPoolDomain",
+          "cognito-idp:TagResource",
+          "cognito-idp:UntagResource",
+          "cognito-identity:DescribeIdentityPool",
+          "cognito-identity:DeleteIdentityPool",
+          "cognito-identity:SetIdentityPoolRoles",
+          "cognito-identity:GetIdentityPoolRoles",
+          "cognito-identity:GetCredentialsForIdentity",
+          "cognito-identity:TagResource",
+          "cognito-identity:UntagResource"
+        ]
+        Resource = "*"
+        Condition = {
+          "StringEquals" = {
+            "aws:ResourceTag/Project" = local.tags["Project"]
+          }
+        }
+      }
     ]
   })
 }
 
-resource "aws_cognito_identity_pool_roles_attachment" "main" {
-  identity_pool_id = aws_cognito_identity_pool.main.id
+resource "aws_iam_role_policy_attachment" "authenticated_project_access" {
+  role       = aws_iam_role.authenticated.name
+  policy_arn = aws_iam_policy.project_access.arn
+}
 
-  roles = {
-    "authenticated"   = aws_iam_role.authenticated.arn
-    "unauthenticated" = aws_iam_role.unauthenticated.arn
+# --- DynamoDB Tables ---
+
+resource "aws_dynamodb_table" "data_table" {
+  name         = "${var.project_name}Data"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "id"
+
+  attribute {
+    name = "id"
+    type = "S"
   }
+
+  attribute {
+    name = "type"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "TypeIndex"
+    hash_key        = "type"
+    range_key       = "id"
+    projection_type = "ALL"
+  }
+
+  # default_tags will handle Project = "EDGE2"
 }
 
 # --- Outputs ---
