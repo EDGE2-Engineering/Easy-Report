@@ -10,6 +10,8 @@ const identityPoolId = "us-east-1:ba292155-da3e-4dce-8bbe-16fc5f519206";
 const cognitoDomainPrefix = "edge2";
 const domain = `https://${cognitoDomainPrefix}.auth.${region}.amazoncognito.com`;
 
+const origin_url = window.location.href.replace(window.location.search, ""); // or "http://localhost:3000"
+
 // Cognito Configuration
 export const cognitoConfig = {
     // User Pool Configuration
@@ -22,14 +24,14 @@ export const cognitoConfig = {
     oidc: {
         authority: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,
         client_id: clientId,
-        redirect_uri: typeof window !== 'undefined' ? window.location.origin : "https://edge2-engineering.github.io/Easy-Report", // or "http://localhost:3000"
+        redirect_uri: typeof window !== 'undefined' ? origin_url : "http://localhost:3000",
         response_type: "code",
         scope: "phone openid profile email",
     },
 
     // Logout Configuration
     getLogoutUrl: () => {
-        const logoutUri = typeof window !== 'undefined' ? window.location.origin : "https://edge2-engineering.github.io/Easy-Report"; // or "http://localhost:3000"
+        const logoutUri = typeof window !== 'undefined' ? origin_url : "http://localhost:3000";
         const encodedLogoutUri = encodeURIComponent(logoutUri);
         return `${domain}/logout?client_id=${clientId}&logout_uri=${encodedLogoutUri}`;
     },
