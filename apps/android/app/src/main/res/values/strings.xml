@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">EasyReport</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="reports">Reports</string>
+    <string name="clients">Clients</string>
+    <string name="create_report">Create Report</string>
+</resources>
