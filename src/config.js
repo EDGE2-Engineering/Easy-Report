@@ -22,14 +22,14 @@ export const cognitoConfig = {
     oidc: {
         authority: `https://cognito-idp.${region}.amazonaws.com/${userPoolId}`,
         client_id: clientId,
-        redirect_uri: typeof window !== 'undefined' ? window.location.origin : "http://localhost:3000",
+        redirect_uri: typeof window !== 'undefined' ? window.location.origin : "https://edge2-engineering.github.io/Easy-Report", // or "http://localhost:3000"
         response_type: "code",
         scope: "phone openid profile email",
     },
 
     // Logout Configuration
     getLogoutUrl: () => {
-        const logoutUri = typeof window !== 'undefined' ? window.location.origin : "http://localhost:3000";
+        const logoutUri = typeof window !== 'undefined' ? window.location.origin : "https://edge2-engineering.github.io/Easy-Report"; // or "http://localhost:3000"
         const encodedLogoutUri = encodeURIComponent(logoutUri);
         return `${domain}/logout?client_id=${clientId}&logout_uri=${encodedLogoutUri}`;
     },
