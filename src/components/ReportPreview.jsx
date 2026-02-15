@@ -1,7 +1,20 @@
 import React from 'react';
 import logo from '@/assets/edge2-logo.png';
+// Import client logos
+import atcLogo from '@/assets/clients/atc.png';
+import indusLogo from '@/assets/clients/indus.png';
+import jioLogo from '@/assets/clients/reliance-jio.png';
+// Import ISO logos
+import iso9001 from '@/assets/iso-9001-2015.png';
+import iso45001 from '@/assets/iso-45001-2018.png';
+// Import seals and signatures
+import companySeal from '@/assets/company-seal.png';
+import engineerSeal from '@/assets/engineer-seal.jpeg';
+import engineerSign from '@/assets/engineer-sign.jpeg';
+
 import { X, Printer, FileText, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
 
 const GrainSizeGraph = ({ data, bhName }) => {
     const chartRef = React.useRef(null);
@@ -183,9 +196,9 @@ const ReportPreview = ({ formData, onClose }) => {
     const getClientLogo = () => {
         if (formData.clientImage) return formData.clientImage;
         const clientName = formData.client?.toUpperCase() || '';
-        if (clientName.includes("ATC TELECOM")) return "/clients/atc.png";
-        if (clientName.includes("INDUS TOWERS")) return "/clients/indus.png";
-        if (clientName.includes("RELIANCE JIO")) return "/clients/reliance-jio.png";
+        if (clientName.includes("ATC TELECOM")) return atcLogo;
+        if (clientName.includes("INDUS TOWERS")) return indusLogo;
+        if (clientName.includes("RELIANCE JIO")) return jioLogo;
         return formData.clientLogo;
     };
 
@@ -374,8 +387,8 @@ const ReportPreview = ({ formData, onClose }) => {
                                 Shivaganga Arcade, B35/130, 6th Cross, 6th Block, Vishweshwaraiah Layout, Ullal Upanagar, Bengaluru, Karnataka - 560056</p>
                         </div>
                         <div className="flex items-center justify-center space-x-2">
-                            <img src="/iso-9001-2015.png" alt="ISO 9001:2015" className="w-[15mm] object-contain" />
-                            <img src="/iso-45001-2018.png" alt="ISO 45001:2018" className="w-[15mm] object-contain" />
+                            <img src={iso9001} alt="ISO 9001:2015" className="w-[15mm] object-contain" />
+                            <img src={iso45001} alt="ISO 45001:2018" className="w-[15mm] object-contain" />
                         </div>
                     </div>
                 </div>
@@ -1459,21 +1472,21 @@ const ReportPreview = ({ formData, onClose }) => {
 
                                     <div className="flex justify-center">
                                         <img
-                                            src="/engineer-sign.jpeg"
+                                            src={engineerSign}
                                             alt="Engineer Signature"
                                             className="max-w-30 max-h-20"
                                         />
                                     </div>
                                     <div className="flex justify-center">
                                         <img
-                                            src="/company-seal.png"
+                                            src={companySeal}
                                             alt="Company Seal"
                                             className="max-w-30 max-h-20"
                                         />
                                     </div>
                                     <div className="col-span-2 flex justify-center">
                                         <img
-                                            src="/engineer-seal.jpeg"
+                                            src={engineerSeal}
                                             alt="Engineer Seal"
                                             className="max-w-30 max-h-20"
                                         />

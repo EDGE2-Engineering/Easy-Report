@@ -23,13 +23,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { dynamoReportsApi } from '@/lib/dynamoReportsApi';
-import reportTemplateHtml from '@/templates/report-template.html?raw'
 
-function fillTemplate(template, data) {
-    return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => {
-        return data[key] ?? '';
-    });
-}
+
 
 const AdminReportsManager = () => {
     const auth = useAuth();
@@ -252,9 +247,9 @@ const AdminReportsManager = () => {
                                                 </p>
 
                                                 <div className='w-full'>
-                                                    
+
                                                 </div>
-                                                
+
 
                                                 <div className="flex items-center gap-1">
                                                     <span className="font-semibold text-gray-900">ID:</span>
